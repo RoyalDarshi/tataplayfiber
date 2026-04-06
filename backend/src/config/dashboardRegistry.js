@@ -20,6 +20,26 @@ export const dashboardRegistry = [
     glow: "rgba(79, 167, 255, 0.26)"
   },
   {
+    id: "leaderboard-dashboard",
+    shortLabel: "Leaderboard",
+    title: "Leaderboard Dashboard",
+    description:
+      "Rank managers, circles, clusters, and KPIs in one leaderboard-first view for quick performance review.",
+    accent: "#8e7dff",
+    accentSoft: "rgba(142, 125, 255, 0.22)",
+    glow: "rgba(142, 125, 255, 0.28)"
+  },
+  {
+    id: "compare-dashboard",
+    shortLabel: "Compare",
+    title: "Compare Dashboard",
+    description:
+      "Compare circles, roles, clusters, and KPIs side by side to understand where performance gaps are opening up.",
+    accent: "#18c4bf",
+    accentSoft: "rgba(24, 196, 191, 0.22)",
+    glow: "rgba(24, 196, 191, 0.28)"
+  },
+  {
     id: "manager-pulse",
     shortLabel: "Attendance",
     title: "Attendance Dashboard",

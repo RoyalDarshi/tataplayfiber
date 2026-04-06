@@ -248,20 +248,7 @@ function buildRolePerformance(rows) {
 }
 
 function buildHighlight(dashboardId, { kpiCards, circles, managers }) {
-  if (dashboardId === "regional-network") {
-    const leader = circles[0];
-    return leader
-      ? {
-          eyebrow: "Top Circle",
-          title: leader.label,
-          value: leader.mtd,
-          secondary: `${leader.achievementPct}% achievement`,
-          deltaLabel: `${leader.customers.toLocaleString("en-IN")} customers`
-        }
-      : null;
-  }
-
-  if (dashboardId === "manager-pulse") {
+  if (dashboardId === "leaderboard-dashboard") {
     const leader = managers[0];
     return leader
       ? {
@@ -270,6 +257,19 @@ function buildHighlight(dashboardId, { kpiCards, circles, managers }) {
           value: leader.mtd,
           secondary: `${leader.achievementPct}% of target`,
           deltaLabel: `${leader.primaryKpi} leading KPI`
+        }
+      : null;
+  }
+
+  if (dashboardId === "compare-dashboard") {
+    const leader = circles[0];
+    return leader
+      ? {
+          eyebrow: "Top Circle",
+          title: leader.label,
+          value: leader.mtd,
+          secondary: `${leader.achievementPct}% achievement`,
+          deltaLabel: `${leader.customers.toLocaleString("en-IN")} customers`
         }
       : null;
   }
@@ -286,11 +286,68 @@ function buildHighlight(dashboardId, { kpiCards, circles, managers }) {
     : null;
 }
 
-function buildInsights({ summary, kpiCards, circles, managers }) {
+function buildInsights(dashboardId, { summary, kpiCards, circles, managers, roles }) {
   const topKpi = kpiCards[0];
   const topCircle = circles[0];
   const topManager = managers[0];
+  const topRole = roles[0];
   const insights = [];
+
+  if (dashboardId === "leaderboard-dashboard") {
+    if (topManager) {
+      insights.push(
+        `${topManager.name} is the current leaderboard leader with ${topManager.mtd.toLocaleString(
+          "en-IN"
+        )} MTD.`
+      );
+    }
+
+    if (topCircle) {
+      insights.push(
+        `${topCircle.label} is the strongest circle at ${topCircle.achievementPct}% of target.`
+      );
+    }
+
+    if (topKpi) {
+      insights.push(
+        `${topKpi.kpiName} is the highest-performing KPI with ${topKpi.deltaPct}% delta versus LMTD.`
+      );
+    }
+
+    insights.push(
+      `Overall momentum is ${summary.momentumPct}% versus LMTD for the same filtered slice.`
+    );
+
+    return insights;
+  }
+
+  if (dashboardId === "compare-dashboard") {
+    if (topCircle) {
+      insights.push(
+        `${topCircle.label} leads circle comparison with ${topCircle.mtd.toLocaleString(
+          "en-IN"
+        )} MTD.`
+      );
+    }
+
+    if (topRole) {
+      insights.push(
+        `${topRole.role} contributes ${topRole.achievementPct}% of target in the current comparison window.`
+      );
+    }
+
+    if (topKpi) {
+      insights.push(
+        `${topKpi.kpiName} remains the strongest KPI comparison point at ${topKpi.achievementPct}% of target.`
+      );
+    }
+
+    insights.push(
+      `Overall momentum is ${summary.momentumPct}% versus LMTD for the same filtered slice.`
+    );
+
+    return insights;
+  }
 
   if (topCircle) {
     insights.push(
@@ -453,7 +510,13 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
     },
     summary,
     highlight: buildHighlight(dashboardId, { kpiCards, circles, managers }),
-    insights: buildInsights({ summary, kpiCards, circles, managers }),
+    insights: buildInsights(dashboardId, {
+      summary,
+      kpiCards,
+      circles,
+      managers,
+      roles
+    }),
     totalSeries: buildTotalSeries(rows),
     kpiCards,
     circles,

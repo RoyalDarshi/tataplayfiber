@@ -268,6 +268,254 @@ function HomePassDashboard({ data, accent }) {
   );
 }
 
+function LeaderboardDashboard({ data }) {
+  const kpiRows = (data.kpiCards || []).map((card) => ({
+    ...card,
+    label: card.kpiName
+  }));
+
+  return (
+    <section className="content-grid">
+      <article className="panel panel-span-8 panel-pad">
+        <PanelHeader
+          kicker="Primary Board"
+          title="Manager Leaderboard"
+          copy="The top managers stay front and center so the strongest performers are visible immediately."
+        />
+        <LeaderboardTable rows={data.managers} />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Signals"
+          title="Leaderboard Insights"
+          copy="Quick notes that explain who is leading and where the leaderboard is tilting."
+        />
+        <InsightStack insights={data.insights} />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Circle Rank"
+          title="Top Circles"
+          copy="Circle ranking by MTD and target achievement."
+        />
+        <PerformanceBars
+          items={data.circles}
+          renderMeta={(item) =>
+            `${formatPercent(item.achievementPct)} achievement | ${formatNumber(item.customers)} customers`
+          }
+        />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Cluster Rank"
+          title="Top Clusters"
+          copy="Clusters with the strongest filtered output."
+        />
+        <MetricBars
+          items={data.clusters}
+          valueKey="mtd"
+          renderMeta={(item) =>
+            `${item.city}, ${item.circle} | ${formatNumber(item.societies)} societies`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>Target {formatNumber(item.target)}</span>
+              <span>{formatPercent(item.achievementPct)}</span>
+            </>
+          )}
+        />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="KPI Rank"
+          title="Top KPIs"
+          copy="KPI leaderboard for a fast view of the strongest levers."
+        />
+        <MetricBars
+          items={kpiRows}
+          valueKey="mtd"
+          renderMeta={(item) =>
+            `Target ${formatNumber(item.target)} | FTD ${formatNumber(item.ftd)}`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>{formatPercent(item.achievementPct)} achieved</span>
+              <span>{formatPercent(item.deltaPct)} vs LMTD</span>
+            </>
+          )}
+        />
+      </article>
+
+      <article className="panel panel-span-12 panel-pad">
+        <PanelHeader
+          kicker="Society Rank"
+          title="Top Societies"
+          copy="A compact leaderboard for the highest-output societies in the selected slice."
+        />
+        <SocietyCards societies={data.societies} />
+      </article>
+    </section>
+  );
+}
+
+function CompareDashboard({ data, accent }) {
+  const kpiRows = (data.kpiCards || []).map((card) => ({
+    ...card,
+    label: card.kpiName
+  }));
+  const circleColumns = [
+    { key: "label", header: "Circle" },
+    {
+      key: "target",
+      header: "Target",
+      render: (row) => formatNumber(row.target)
+    },
+    {
+      key: "ftd",
+      header: "FTD",
+      render: (row) => formatNumber(row.ftd)
+    },
+    {
+      key: "mtd",
+      header: "MTD",
+      render: (row) => formatNumber(row.mtd)
+    },
+    {
+      key: "customers",
+      header: "Customers",
+      render: (row) => formatNumber(row.customers)
+    },
+    {
+      key: "homePassed",
+      header: "Home Passed",
+      render: (row) => formatNumber(row.homePassed)
+    },
+    {
+      key: "achievementPct",
+      header: "Achievement",
+      render: (row) => formatPercent(row.achievementPct)
+    }
+  ];
+
+  return (
+    <section className="content-grid">
+      <article className="panel panel-span-8 panel-pad">
+        <PanelHeader
+          kicker="Comparison Trend"
+          title="MTD vs Target vs FTD"
+          copy="Use the common trend line to compare overall movement before drilling into circles, roles, and KPIs."
+        />
+        <LineTrendChart
+          data={data.totalSeries}
+          lines={[
+            { key: "mtd", label: "MTD", color: accent },
+            { key: "target", label: "Target", color: "#6f8bff" },
+            { key: "ftd", label: "FTD", color: "#ffbc73" }
+          ]}
+          height={320}
+        />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Compare Notes"
+          title="Comparison Insights"
+          copy="A short narrative of the current performance gaps and leaders."
+        />
+        <InsightStack insights={data.insights} />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="Circle Compare"
+          title="Circle vs Circle"
+          copy="How circles stack up on MTD, customers, and target achievement."
+        />
+        <PerformanceBars
+          items={data.circles}
+          renderMeta={(item) =>
+            `${formatNumber(item.customers)} customers | ${formatPercent(item.achievementPct)} achievement`
+          }
+        />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="Role Compare"
+          title="Role vs Role"
+          copy="Role contribution comparison across the active filter combination."
+        />
+        <PerformanceBars
+          items={data.roles}
+          renderMeta={(item) =>
+            `${formatNumber(item.managers)} managers | ${formatPercent(item.achievementPct)} achievement`
+          }
+        />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="Cluster Compare"
+          title="Cluster vs Cluster"
+          copy="Compare clusters on output and footprint concentration."
+        />
+        <MetricBars
+          items={data.clusters}
+          valueKey="mtd"
+          renderMeta={(item) =>
+            `${item.city}, ${item.circle} | ${formatNumber(item.societies)} societies`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>Target {formatNumber(item.target)}</span>
+              <span>{formatPercent(item.achievementPct)}</span>
+            </>
+          )}
+        />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="KPI Compare"
+          title="KPI vs KPI"
+          copy="See which KPI is leading and which still trails the target line."
+        />
+        <MetricBars
+          items={kpiRows}
+          valueKey="mtd"
+          renderMeta={(item) =>
+            `Target ${formatNumber(item.target)} | FTD ${formatNumber(item.ftd)}`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>{formatPercent(item.achievementPct)} achieved</span>
+              <span>{formatPercent(item.deltaPct)} vs LMTD</span>
+            </>
+          )}
+        />
+      </article>
+
+      <article className="panel panel-span-12 panel-pad">
+        <PanelHeader
+          kicker="Comparison Table"
+          title="Circle Comparison Table"
+          copy="A denser comparison grid for circles when you need exact values instead of relative bars."
+        />
+        <DataTable
+          columns={circleColumns}
+          rows={data.circles}
+          rowKey={(row) => row.label}
+          emptyMessage="No circle comparison rows available."
+        />
+      </article>
+    </section>
+  );
+}
+
 function AttendanceDashboard({ data, accent }) {
   const employeeColumns = [
     { key: "employeeCode", header: "Employee Code" },
@@ -421,6 +669,14 @@ function AttendanceDashboard({ data, accent }) {
 export default function DashboardContent({ dashboardId, data, accent }) {
   if (dashboardId === "regional-network") {
     return <HomePassDashboard data={data} accent={accent} />;
+  }
+
+  if (dashboardId === "leaderboard-dashboard") {
+    return <LeaderboardDashboard data={data} accent={accent} />;
+  }
+
+  if (dashboardId === "compare-dashboard") {
+    return <CompareDashboard data={data} accent={accent} />;
   }
 
   if (dashboardId === "manager-pulse") {
