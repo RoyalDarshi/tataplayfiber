@@ -82,12 +82,12 @@ function SalesOverview({ data, accent }) {
 
       <article className="panel panel-span-5 panel-pad">
         <PanelHeader
-          kicker="Regional Split"
-          title="Circle Performance"
-          copy="Which circles are pushing the most output right now."
+          kicker="City Split"
+          title="City Performance"
+          copy="Which cities are pushing the most output right now."
         />
         <PerformanceBars
-          items={data.circles}
+          items={data.cities}
           renderMeta={(item) =>
             `${item.customers.toLocaleString("en-IN")} customers | ${item.homePassed.toLocaleString("en-IN")} homes`
           }

@@ -1,9 +1,15 @@
 import cors from "cors";
 import express from "express";
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import metaRoutes from "./routes/metaRoutes.js";
 
 const app = express();
+const currentDir = dirname(fileURLToPath(import.meta.url));
+const frontendDistPath = resolve(currentDir, "../../frontend/dist");
+const hasBuiltFrontend = existsSync(frontendDistPath);
 
 app.use(
   cors({
@@ -22,6 +28,19 @@ app.get("/api", (_request, response) => {
 app.use("/api", metaRoutes);
 app.use("/api/dashboards", dashboardRoutes);
 
+if (hasBuiltFrontend) {
+  app.use(express.static(frontendDistPath));
+
+  app.get("*", (request, response, next) => {
+    if (request.path.startsWith("/api")) {
+      next();
+      return;
+    }
+
+    response.sendFile(resolve(frontendDistPath, "index.html"));
+  });
+}
+
 app.use((error, _request, response, _next) => {
   response.status(500).json({
     message:
@@ -32,4 +51,3 @@ app.use((error, _request, response, _next) => {
 });
 
 export default app;
-

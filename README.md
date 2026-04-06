@@ -57,6 +57,7 @@ CREATE DATABASE tata_play_fiber;
 Update `backend/.env` with your real PostgreSQL username, password, host, and database name if they are different from the sample:
 
 ```env
+HOST=0.0.0.0
 DATABASE_URL=postgresql://your_user:your_password@localhost:5432/tata_play_fiber
 ```
 
@@ -71,6 +72,58 @@ npm run db:seed
 ```bash
 npm run dev
 ```
+
+## Run on network
+
+- Frontend dev server runs on `0.0.0.0:5173`
+- Backend server runs on `0.0.0.0:4000`
+- Open the app from another device on the same network using:
+
+```text
+http://YOUR_SERVER_IP:5173
+```
+
+The Vite dev server proxies `/api` calls to the backend automatically.
+
+## Offline bundle and server deployment
+
+For an offline server, build the frontend once on a machine that has internet, then copy the prepared project to the target server.
+
+1. On the connected machine:
+
+```bash
+npm install
+npm run build
+```
+
+2. Make sure `backend/.env` is correct for the target server:
+
+```env
+HOST=0.0.0.0
+PORT=4000
+DATABASE_URL=postgresql://your_user:your_password@your_db_host:5432/tata_play_fiber
+```
+
+3. Copy these to the offline server:
+
+- `backend/`
+- `frontend/dist/`
+- `package.json`
+- `node_modules/`
+
+4. On the offline server, start the Node app:
+
+```bash
+npm run start
+```
+
+After `npm run build`, the backend automatically serves the React build from `frontend/dist`, so in production or offline mode you only need the backend process and the built frontend files. Open:
+
+```text
+http://YOUR_SERVER_IP:4000
+```
+
+If the offline server cannot run `npm install`, prepare everything on a similar machine first and copy the ready-to-run project folder with `node_modules`.
 
 ## API endpoints
 

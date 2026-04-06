@@ -412,6 +412,7 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
   const summary = buildSummary(rows);
   const kpiCards = buildKpiCards(rows);
   const circles = buildPerformanceGroups(rows, "circle");
+  const cities = buildPerformanceGroups(rows, "city");
   const clusters = buildClusterPerformance(rows);
   const societies = buildSocietyPerformance(rows);
   const managers = buildManagerPerformance(rows);
@@ -429,6 +430,7 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
     totalSeries: buildTotalSeries(rows),
     kpiCards,
     circles,
+    cities,
     clusters: clusters.slice(0, 8),
     societies,
     managers,

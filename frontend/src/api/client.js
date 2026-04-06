@@ -1,8 +1,13 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function request(pathname, params = {}) {
-  const url = new URL(pathname, `${API_BASE_URL}/`);
+  const normalizedBase = API_BASE_URL.endsWith("/")
+    ? API_BASE_URL.slice(0, -1)
+    : API_BASE_URL;
+  const url = normalizedBase.startsWith("http://") ||
+    normalizedBase.startsWith("https://")
+    ? new URL(pathname, `${normalizedBase}/`)
+    : new URL(`${normalizedBase}/${pathname}`, window.location.origin);
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
