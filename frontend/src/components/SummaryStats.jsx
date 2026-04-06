@@ -4,7 +4,7 @@ import {
   formatPercent
 } from "../utils/formatters.js";
 
-export default function SummaryStats({ summary }) {
+export default function SummaryStats({ summary, maxCards = 4 }) {
   const fallbackCards = [
     {
       label: "Target",
@@ -62,9 +62,11 @@ export default function SummaryStats({ summary }) {
       }))
     : fallbackCards;
 
+  const visibleCards = statCards.slice(0, maxCards);
+
   return (
     <section className="summary-grid">
-      {statCards.map((card) => (
+      {visibleCards.map((card) => (
         <article key={card.label} className="panel stat-card">
           <span className="stat-label">{card.label}</span>
           <strong className="stat-value">{card.value}</strong>

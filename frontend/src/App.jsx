@@ -267,6 +267,7 @@ export default function App() {
       : activeDashboard === "compare-dashboard"
         ? COMPARE_FILTER_FIELDS
         : PERFORMANCE_FILTER_FIELDS;
+  const showSharedSummary = activeDashboard === "sales-overview";
 
   return (
     <div className="app-shell" style={themeStyle}>
@@ -338,7 +339,9 @@ export default function App() {
           <section className="panel error-panel">{error}</section>
         ) : dashboardData ? (
           <>
-            <SummaryStats summary={dashboardData.summary} />
+            {showSharedSummary && (
+              <SummaryStats summary={dashboardData.summary} maxCards={4} />
+            )}
             <DashboardContent
               dashboardId={activeDashboard}
               data={dashboardData}

@@ -63,17 +63,21 @@ function buildHeadToHeadSeries(leftCandidate, rightCandidate) {
       date: entry.date,
       label: entry.label,
       left: 0,
-      right: 0
+      right: 0,
     };
 
     if (leftCandidate.series.some((item) => item.date === entry.date)) {
-      const leftEntry = leftCandidate.series.find((item) => item.date === entry.date);
+      const leftEntry = leftCandidate.series.find(
+        (item) => item.date === entry.date,
+      );
       current.left = leftEntry?.mtd || 0;
       current.label = leftEntry?.label || current.label;
     }
 
     if (rightCandidate.series.some((item) => item.date === entry.date)) {
-      const rightEntry = rightCandidate.series.find((item) => item.date === entry.date);
+      const rightEntry = rightCandidate.series.find(
+        (item) => item.date === entry.date,
+      );
       current.right = rightEntry?.mtd || 0;
       current.label = rightEntry?.label || current.label;
     }
@@ -81,7 +85,9 @@ function buildHeadToHeadSeries(leftCandidate, rightCandidate) {
     dateMap.set(entry.date, current);
   });
 
-  return [...dateMap.values()].sort((left, right) => left.date.localeCompare(right.date));
+  return [...dateMap.values()].sort((left, right) =>
+    left.date.localeCompare(right.date),
+  );
 }
 
 function buildComparisonRows(leftCandidate, rightCandidate) {
@@ -94,44 +100,44 @@ function buildComparisonRows(leftCandidate, rightCandidate) {
       metric: "MTD",
       left: leftCandidate.mtd,
       right: rightCandidate.mtd,
-      formatter: formatNumber
+      formatter: formatNumber,
     },
     {
       metric: "FTD",
       left: leftCandidate.ftd,
       right: rightCandidate.ftd,
-      formatter: formatNumber
+      formatter: formatNumber,
     },
     {
       metric: "Target",
       left: leftCandidate.target,
       right: rightCandidate.target,
-      formatter: formatNumber
+      formatter: formatNumber,
     },
     {
       metric: "Achievement",
       left: leftCandidate.achievementPct,
       right: rightCandidate.achievementPct,
-      formatter: formatPercent
+      formatter: formatPercent,
     },
     {
       metric: "Customers",
       left: leftCandidate.customers,
       right: rightCandidate.customers,
-      formatter: formatNumber
+      formatter: formatNumber,
     },
     {
       metric: "Home Passed",
       left: leftCandidate.homePassed,
       right: rightCandidate.homePassed,
-      formatter: formatNumber
+      formatter: formatNumber,
     },
     {
       metric: "Delta vs LMTD",
       left: leftCandidate.deltaPct,
       right: rightCandidate.deltaPct,
-      formatter: formatSignedPercent
-    }
+      formatter: formatSignedPercent,
+    },
   ];
 
   return rows.map((row) => ({
@@ -141,34 +147,39 @@ function buildComparisonRows(leftCandidate, rightCandidate) {
         ? "Tie"
         : row.left > row.right
           ? leftCandidate.name
-          : rightCandidate.name
+          : rightCandidate.name,
   }));
 }
 
 function buildCompareNotes(leftCandidate, rightCandidate) {
   if (!leftCandidate || !rightCandidate) {
-    return ["Select two managers from the filtered slice to start the comparison."];
+    return [
+      "Select two managers from the filtered slice to start the comparison.",
+    ];
   }
 
-  const mtdLeader = leftCandidate.mtd >= rightCandidate.mtd ? leftCandidate : rightCandidate;
+  const mtdLeader =
+    leftCandidate.mtd >= rightCandidate.mtd ? leftCandidate : rightCandidate;
   const achievementLeader =
     leftCandidate.achievementPct >= rightCandidate.achievementPct
       ? leftCandidate
       : rightCandidate;
   const customerLeader =
-    leftCandidate.customers >= rightCandidate.customers ? leftCandidate : rightCandidate;
+    leftCandidate.customers >= rightCandidate.customers
+      ? leftCandidate
+      : rightCandidate;
 
   return [
     `${mtdLeader.name} leads the head-to-head by ${formatNumber(
-      Math.abs(leftCandidate.mtd - rightCandidate.mtd)
+      Math.abs(leftCandidate.mtd - rightCandidate.mtd),
     )} MTD.`,
     `${achievementLeader.name} is converting best at ${formatPercent(
-      achievementLeader.achievementPct
+      achievementLeader.achievementPct,
     )} of target.`,
     `${customerLeader.name} carries the larger base with ${formatNumber(
-      customerLeader.customers
+      customerLeader.customers,
     )} customers.`,
-    `${leftCandidate.name} is strongest on ${leftCandidate.primaryKpi}, while ${rightCandidate.name} leans on ${rightCandidate.primaryKpi}.`
+    `${leftCandidate.name} is strongest on ${leftCandidate.primaryKpi}, while ${rightCandidate.name} leans on ${rightCandidate.primaryKpi}.`,
   ];
 }
 
@@ -204,16 +215,8 @@ function CompareProfileCard({ label, candidate, tone }) {
           <strong>{formatNumber(candidate.ftd)}</strong>
         </div>
         <div className="compare-card-metric">
-          <span>Customers</span>
-          <strong>{formatNumber(candidate.customers)}</strong>
-        </div>
-        <div className="compare-card-metric">
-          <span>Home Passed</span>
-          <strong>{formatNumber(candidate.homePassed)}</strong>
-        </div>
-        <div className="compare-card-metric">
-          <span>Vs LMTD</span>
-          <strong>{formatSignedPercent(candidate.deltaPct)}</strong>
+          <span>Target</span>
+          <strong>{formatNumber(candidate.target)}</strong>
         </div>
       </div>
     </article>
@@ -222,7 +225,11 @@ function CompareProfileCard({ label, candidate, tone }) {
 
 function SocietyCards({ societies }) {
   if (!societies?.length) {
-    return <div className="empty-state">No societies match the selected filters.</div>;
+    return (
+      <div className="empty-state">
+        No societies match the selected filters.
+      </div>
+    );
   }
 
   return (
@@ -247,7 +254,11 @@ function SocietyCards({ societies }) {
 
 function CoverageCards({ societies }) {
   if (!societies?.length) {
-    return <div className="empty-state">No societies match the selected filters.</div>;
+    return (
+      <div className="empty-state">
+        No societies match the selected filters.
+      </div>
+    );
   }
 
   return (
@@ -259,7 +270,9 @@ function CoverageCards({ societies }) {
         >
           <span className="society-name">{society.society}</span>
           <p className="society-copy">{`${society.cluster} | ${society.city}`}</p>
-          <strong className="society-value">{formatNumber(society.homePassed)}</strong>
+          <strong className="society-value">
+            {formatNumber(society.homePassed)}
+          </strong>
           <div className="society-meta">
             <span>{formatNumber(society.customers)} customers</span>
             <span>{formatPercent(society.connectRatePct)}</span>
@@ -284,7 +297,7 @@ function SalesOverview({ data, accent }) {
           lines={[
             { key: "mtd", label: "MTD", color: accent },
             { key: "target", label: "Target", color: "#9fc5ff" },
-            { key: "ftd", label: "FTD", color: "#ffbc73" }
+            { key: "ftd", label: "FTD", color: "#ffbc73" },
           ]}
           height={320}
         />
@@ -345,38 +358,66 @@ function SalesOverview({ data, accent }) {
 
 function HomePassDashboard({ data, accent }) {
   const topCircle = data.circles?.[0];
-  const topHotspot = data.hotspots?.[0];
-  const pulseCards = [
+  const topCity = data.hotspots?.[0] || data.cities?.[0];
+  const summaryCards = [
+    {
+      label: "Home Passed",
+      value: formatNumber(data.summary?.homePassed),
+      detail: "Total serviceable homes",
+    },
+    {
+      label: "Customers",
+      value: formatNumber(data.summary?.customers),
+      detail: "Active customer base",
+    },
+    {
+      label: "Connect Rate",
+      value: formatPercent(data.summary?.connectRatePct),
+      detail: "Customers vs home pass",
+    },
     {
       label: "Top Circle",
       value: topCircle?.label || "-",
       detail: topCircle
-        ? `${formatNumber(topCircle.homePassed)} home passed | ${formatPercent(
-            topCircle.sharePct
-          )} footprint share`
-        : "No circle data"
+        ? `${formatNumber(topCircle.homePassed)} home passed`
+        : "No circle coverage available",
     },
     {
-      label: "Best Hotspot",
-      value: topHotspot ? `${topHotspot.city}, ${topHotspot.circle}` : "-",
-      detail: topHotspot
-        ? `${formatPercent(topHotspot.connectRatePct)} connect rate`
-        : "No hotspot data"
+      label: "Best City",
+      value: topCity ? `${topCity.city}, ${topCity.circle}` : "-",
+      detail: topCity
+        ? `${formatPercent(topCity.connectRatePct)} connect rate`
+        : "No city ranking available",
     },
     {
-      label: "Avg / Manager",
-      value: data.managers?.length
-        ? formatNumber(
-            Math.round((Number(data.summary?.homePassed) || 0) / data.managers.length)
-          )
-        : "0",
-      detail: "Home passed per manager"
+      label: "Managers",
+      value: formatNumber(data.managers?.length || 0),
+      detail: "Managers in current footprint",
+    },
+  ];
+  const cityColumns = [
+    { key: "city", header: "City" },
+    { key: "circle", header: "Circle" },
+    {
+      key: "homePassed",
+      header: "Home Passed",
+      render: (row) => formatNumber(row.homePassed),
     },
     {
-      label: "Conversion Base",
-      value: formatPercent(data.summary?.connectRatePct),
-      detail: `${formatNumber(data.summary?.customers)} active customers`
-    }
+      key: "customers",
+      header: "Customers",
+      render: (row) => formatNumber(row.customers),
+    },
+    {
+      key: "connectRatePct",
+      header: "Connect Rate",
+      render: (row) => formatPercent(row.connectRatePct),
+    },
+    {
+      key: "societies",
+      header: "Societies",
+      render: (row) => formatNumber(row.societies),
+    },
   ];
   const managerColumns = [
     { key: "name", header: "Manager" },
@@ -384,178 +425,93 @@ function HomePassDashboard({ data, accent }) {
     {
       key: "location",
       header: "Location",
-      render: (row) => `${row.city}, ${row.circle}`
+      render: (row) => `${row.city}, ${row.circle}`,
     },
     {
       key: "homePassed",
       header: "Home Passed",
-      render: (row) => formatNumber(row.homePassed)
+      render: (row) => formatNumber(row.homePassed),
     },
     {
       key: "customers",
       header: "Customers",
-      render: (row) => formatNumber(row.customers)
+      render: (row) => formatNumber(row.customers),
     },
     {
       key: "connectRatePct",
       header: "Connect Rate",
-      render: (row) => formatPercent(row.connectRatePct)
+      render: (row) => formatPercent(row.connectRatePct),
     },
-    {
-      key: "societies",
-      header: "Societies",
-      render: (row) => formatNumber(row.societies)
-    }
-  ];
-  const circleColumns = [
-    { key: "label", header: "Circle" },
-    {
-      key: "homePassed",
-      header: "Home Passed",
-      render: (row) => formatNumber(row.homePassed)
-    },
-    {
-      key: "customers",
-      header: "Customers",
-      render: (row) => formatNumber(row.customers)
-    },
-    {
-      key: "connectRatePct",
-      header: "Connect Rate",
-      render: (row) => formatPercent(row.connectRatePct)
-    },
-    {
-      key: "cities",
-      header: "Cities",
-      render: (row) => formatNumber(row.cities)
-    },
-    {
-      key: "societies",
-      header: "Societies",
-      render: (row) => formatNumber(row.societies)
-    },
-    {
-      key: "managers",
-      header: "Managers",
-      render: (row) => formatNumber(row.managers)
-    },
-    {
-      key: "sharePct",
-      header: "Share",
-      render: (row) => formatPercent(row.sharePct)
-    }
   ];
 
   return (
     <section className="content-grid">
-      <article className="panel panel-span-8 panel-pad">
+      <article className="panel panel-span-12 panel-pad">
+        <PanelHeader
+          kicker="Footprint Snapshot"
+          title="Home Pass Overview"
+          copy="The footprint story reduced to a few numbers that are easy to explain."
+        />
+        <MiniStatGrid cards={summaryCards} />
+      </article>
+
+      <article className="panel panel-span-7 panel-pad">
         <PanelHeader
           kicker="Coverage Trend"
-          title="Daily Home Pass vs Customer Base"
-          copy="See how coverage expansion and active customer demand move together across the selected footprint."
+          title="Home Passed vs Customers"
+          copy="See how network reach and active demand move together over time."
         />
         <LineTrendChart
           data={data.totalSeries}
           lines={[
             { key: "homePassed", label: "Home Passed", color: accent },
-            { key: "customers", label: "Customers", color: "#5fe0b0" }
+            { key: "customers", label: "Customers", color: "#4a90e2" },
           ]}
           height={320}
         />
       </article>
 
-      <article className="panel panel-span-4 panel-pad">
+      <article className="panel panel-span-5 panel-pad">
         <PanelHeader
-          kicker="Coverage Pulse"
-          title="Footprint Snapshot"
-          copy="A faster read on the footprint, hotspot, and conversion shape behind the selected slice."
-        />
-        <MiniStatGrid cards={pulseCards} />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Circle Coverage"
-          title="Home Pass by Circle"
-          copy="Use this to see which circles hold the most footprint today."
+          kicker="Circle Rank"
+          title="Coverage by Circle"
+          copy="Circles ordered by footprint in the selected view."
         />
         <MetricBars
           items={data.circles}
           valueKey="homePassed"
           renderMeta={(item) =>
-            `${formatNumber(item.customers)} customers | ${formatPercent(item.connectRatePct)} connect rate`
+            `${formatPercent(item.connectRatePct)} connect rate | ${formatNumber(item.customers)} customers`
           }
           renderFooter={(item) => (
             <>
-              <span>{formatPercent(item.sharePct)} share</span>
-              <span>{formatNumber(item.cities)} cities</span>
-            </>
-          )}
-        />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Hotspots"
-          title="Conversion Hotspots"
-          copy="Cities ranked by strongest connect rate within the filtered footprint."
-        />
-        <MetricBars
-          items={data.hotspots}
-          valueKey="connectRatePct"
-          valueFormatter={formatPercent}
-          renderMeta={(item) =>
-            `${item.city}, ${item.circle} | ${formatNumber(item.customers)} customers`
-          }
-          renderFooter={(item) => (
-            <>
-              <span>{formatNumber(item.homePassed)} home passed</span>
+              <span>{formatNumber(item.managers)} managers</span>
               <span>{formatPercent(item.sharePct)} share</span>
             </>
           )}
+          emptyMessage="No home pass rows available."
         />
       </article>
 
-      <article className="panel panel-span-4 panel-pad">
+      <article className="panel panel-span-6 panel-pad">
         <PanelHeader
-          kicker="City Board"
-          title="Coverage By City"
-          copy="Cities with the strongest combination of home pass scale and conversion."
-        />
-        <MetricBars
-          items={data.cities}
-          valueKey="homePassed"
-          renderMeta={(item) =>
-            `${item.city}, ${item.circle} | ${formatPercent(item.connectRatePct)} connect rate`
-          }
-          renderFooter={(item) => (
-            <>
-              <span>{formatNumber(item.customers)} customers</span>
-              <span>{formatNumber(item.societies)} societies</span>
-            </>
-          )}
-        />
-      </article>
-
-      <article className="panel panel-span-12 panel-pad">
-        <PanelHeader
-          kicker="Coverage Matrix"
-          title="Circle Coverage Table"
-          copy="A denser footprint view for circle-level coverage, penetration, and market spread."
+          kicker="City View"
+          title="Top Coverage Cities"
+          copy="A clean city table for scale, demand, and conversion."
         />
         <DataTable
-          columns={circleColumns}
-          rows={data.circles}
-          rowKey={(row) => row.label}
-          emptyMessage="No circle coverage rows available."
+          columns={cityColumns}
+          rows={data.cities}
+          rowKey={(row) => `${row.city}-${row.circle}`}
+          emptyMessage="No city coverage rows available."
         />
       </article>
 
-      <article className="panel panel-span-12 panel-pad">
+      <article className="panel panel-span-6 panel-pad">
         <PanelHeader
-          kicker="Manager Footprint"
-          title="Manager Coverage Board"
-          copy="Managers ranked by home pass footprint, customer base, and society coverage."
+          kicker="Manager View"
+          title="Manager Coverage"
+          copy="Managers ranked by coverage so ownership stays easy to follow."
         />
         <DataTable
           columns={managerColumns}
@@ -568,95 +524,143 @@ function HomePassDashboard({ data, accent }) {
   );
 }
 
+function buildLeaderboardRows(rows, key) {
+  return [...(rows || [])]
+    .sort((left, right) => Number(right[key] || 0) - Number(left[key] || 0))
+    .slice(0, 8)
+    .map((row) => ({
+      ...row,
+      label: row.name,
+    }));
+}
+
 function LeaderboardDashboard({ data }) {
-  const kpiRows = (data.kpiCards || []).map((card) => ({
-    ...card,
-    label: card.kpiName
-  }));
+  const managers = data.managers || [];
+  const mtdRows = buildLeaderboardRows(managers, "mtd");
+  const achievementRows = buildLeaderboardRows(managers, "achievementPct");
+  const ftdRows = buildLeaderboardRows(managers, "ftd");
+  const targetRows = buildLeaderboardRows(managers, "target");
+  const topMtd = mtdRows[0];
+  const topAchievement = achievementRows[0];
+  const topFtd = ftdRows[0];
+  const topTarget = targetRows[0];
+  const summaryCards = [
+    {
+      label: "MTD Leader",
+      value: topMtd?.name || "-",
+      detail: topMtd ? `${formatNumber(topMtd.mtd)} MTD` : "No manager data",
+    },
+    {
+      label: "Achievement Leader",
+      value: topAchievement?.name || "-",
+      detail: topAchievement
+        ? `${formatPercent(topAchievement.achievementPct)} achieved`
+        : "No manager data",
+    },
+    {
+      label: "FTD Leader",
+      value: topFtd?.name || "-",
+      detail: topFtd ? `${formatNumber(topFtd.ftd)} FTD` : "No manager data",
+    },
+    {
+      label: "Target Leader",
+      value: topTarget?.name || "-",
+      detail: topTarget
+        ? `${formatNumber(topTarget.target)} target`
+        : "No manager data",
+    },
+  ];
 
   return (
     <section className="content-grid">
-      <article className="panel panel-span-8 panel-pad">
+      <article className="panel panel-span-12 panel-pad">
         <PanelHeader
-          kicker="Primary Board"
-          title="Manager Leaderboard"
-          copy="The top managers stay front and center so the strongest performers are visible immediately."
+          kicker="Top View"
+          title="Leaderboard Summary"
+          copy="One line for each ranking lens so the dashboard stays easy to explain."
         />
-        <LeaderboardTable rows={data.managers} />
+        <MiniStatGrid cards={summaryCards} />
       </article>
 
-      <article className="panel panel-span-4 panel-pad">
+      <article className="panel panel-span-3 panel-pad">
         <PanelHeader
-          kicker="Signals"
-          title="Leaderboard Insights"
-          copy="Quick notes that explain who is leading and where the leaderboard is tilting."
-        />
-        <InsightStack insights={data.insights} />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Circle Rank"
-          title="Top Circles"
-          copy="Circle ranking by MTD and target achievement."
-        />
-        <PerformanceBars
-          items={data.circles}
-          renderMeta={(item) =>
-            `${formatPercent(item.achievementPct)} achievement | ${formatNumber(item.customers)} customers`
-          }
-        />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Cluster Rank"
-          title="Top Clusters"
-          copy="Clusters with the strongest filtered output."
+          kicker="Rank 1"
+          title="MTD Top 8"
+          copy="Managers with the highest current month-to-date output."
         />
         <MetricBars
-          items={data.clusters}
+          items={mtdRows}
           valueKey="mtd"
-          renderMeta={(item) =>
-            `${item.city}, ${item.circle} | ${formatNumber(item.societies)} societies`
-          }
+          renderMeta={(item) => `${item.role} | ${item.city}`}
           renderFooter={(item) => (
             <>
               <span>Target {formatNumber(item.target)}</span>
               <span>{formatPercent(item.achievementPct)}</span>
             </>
           )}
+          emptyMessage="No MTD leaderboard rows available."
         />
       </article>
 
-      <article className="panel panel-span-4 panel-pad">
+      <article className="panel panel-span-3 panel-pad">
         <PanelHeader
-          kicker="KPI Rank"
-          title="Top KPIs"
-          copy="KPI leaderboard for a fast view of the strongest levers."
+          kicker="Rank 2"
+          title="Achievement Top 8"
+          copy="Managers converting the most target into output."
         />
         <MetricBars
-          items={kpiRows}
-          valueKey="mtd"
-          renderMeta={(item) =>
-            `Target ${formatNumber(item.target)} | FTD ${formatNumber(item.ftd)}`
-          }
+          items={achievementRows}
+          valueKey="achievementPct"
+          valueFormatter={formatPercent}
+          renderMeta={(item) => `${item.role} | ${item.city}`}
           renderFooter={(item) => (
             <>
-              <span>{formatPercent(item.achievementPct)} achieved</span>
-              <span>{formatPercent(item.deltaPct)} vs LMTD</span>
+              <span>MTD {formatNumber(item.mtd)}</span>
+              <span>Target {formatNumber(item.target)}</span>
             </>
           )}
+          emptyMessage="No achievement leaderboard rows available."
         />
       </article>
 
-      <article className="panel panel-span-12 panel-pad">
+      <article className="panel panel-span-3 panel-pad">
         <PanelHeader
-          kicker="Society Rank"
-          title="Top Societies"
-          copy="A compact leaderboard for the highest-output societies in the selected slice."
+          kicker="Rank 3"
+          title="FTD Top 8"
+          copy="The strongest managers for today movement."
         />
-        <SocietyCards societies={data.societies} />
+        <MetricBars
+          items={ftdRows}
+          valueKey="ftd"
+          renderMeta={(item) => `${item.role} | ${item.city}`}
+          renderFooter={(item) => (
+            <>
+              <span>MTD {formatNumber(item.mtd)}</span>
+              <span>{formatPercent(item.achievementPct)}</span>
+            </>
+          )}
+          emptyMessage="No FTD leaderboard rows available."
+        />
+      </article>
+
+      <article className="panel panel-span-3 panel-pad">
+        <PanelHeader
+          kicker="Rank 4"
+          title="Target Top 8"
+          copy="Managers carrying the largest target in the selected slice."
+        />
+        <MetricBars
+          items={targetRows}
+          valueKey="target"
+          renderMeta={(item) => `${item.role} | ${item.city}`}
+          renderFooter={(item) => (
+            <>
+              <span>MTD {formatNumber(item.mtd)}</span>
+              <span>{formatPercent(item.achievementPct)}</span>
+            </>
+          )}
+          emptyMessage="No target leaderboard rows available."
+        />
       </article>
     </section>
   );
@@ -665,7 +669,9 @@ function LeaderboardDashboard({ data }) {
 function CompareDashboard({ data, accent }) {
   const candidates = data.compareCandidates || [];
   const [leftId, setLeftId] = useState(candidates[0]?.id || "");
-  const [rightId, setRightId] = useState(candidates[1]?.id || candidates[0]?.id || "");
+  const [rightId, setRightId] = useState(
+    candidates[1]?.id || candidates[0]?.id || "",
+  );
 
   useEffect(() => {
     if (!candidates.length) {
@@ -675,7 +681,8 @@ function CompareDashboard({ data, accent }) {
     }
 
     const firstId = candidates[0]?.id || "";
-    const secondId = candidates.find((candidate) => candidate.id !== firstId)?.id || firstId;
+    const secondId =
+      candidates.find((candidate) => candidate.id !== firstId)?.id || firstId;
     const candidateIds = new Set(candidates.map((candidate) => candidate.id));
 
     setLeftId((current) => (candidateIds.has(current) ? current : firstId));
@@ -691,12 +698,14 @@ function CompareDashboard({ data, accent }) {
   const leftCandidate =
     candidates.find((candidate) => candidate.id === leftId) || candidates[0];
   const rightCandidate =
-    candidates.find((candidate) => candidate.id === rightId && candidate.id !== leftCandidate?.id) ||
+    candidates.find(
+      (candidate) =>
+        candidate.id === rightId && candidate.id !== leftCandidate?.id,
+    ) ||
     candidates.find((candidate) => candidate.id !== leftCandidate?.id) ||
     candidates[0];
   const comparisonSeries = buildHeadToHeadSeries(leftCandidate, rightCandidate);
   const comparisonRows = buildComparisonRows(leftCandidate, rightCandidate);
-  const comparisonNotes = buildCompareNotes(leftCandidate, rightCandidate);
   const winner =
     leftCandidate && rightCandidate
       ? leftCandidate.mtd >= rightCandidate.mtd
@@ -709,25 +718,33 @@ function CompareDashboard({ data, accent }) {
           {
             label: "Current Leader",
             value: winner?.name || "-",
-            detail: winner ? `${formatNumber(winner.mtd)} MTD in the active slice` : "No leader"
+            detail: winner
+              ? `${formatNumber(winner.mtd)} MTD in the active slice`
+              : "No leader",
           },
           {
             label: "MTD Gap",
-            value: formatNumber(Math.abs(leftCandidate.mtd - rightCandidate.mtd)),
-            detail: `${winner?.name || "Leader"} advantage`
+            value: formatNumber(
+              Math.abs(leftCandidate.mtd - rightCandidate.mtd),
+            ),
+            detail: `${winner?.name || "Leader"} advantage`,
           },
           {
             label: "Achievement Gap",
             value: formatPercent(
-              Math.abs(leftCandidate.achievementPct - rightCandidate.achievementPct)
+              Math.abs(
+                leftCandidate.achievementPct - rightCandidate.achievementPct,
+              ),
             ),
-            detail: "Difference in target achievement"
+            detail: "Difference in target achievement",
           },
           {
             label: "Customer Gap",
-            value: formatNumber(Math.abs(leftCandidate.customers - rightCandidate.customers)),
-            detail: "Difference in customer base"
-          }
+            value: formatNumber(
+              Math.abs(leftCandidate.customers - rightCandidate.customers),
+            ),
+            detail: "Difference in customer base",
+          },
         ]
       : [];
   const comparisonColumns = [
@@ -735,14 +752,14 @@ function CompareDashboard({ data, accent }) {
     {
       key: "left",
       header: leftCandidate?.name || "Left",
-      render: (row) => row.formatter(row.left)
+      render: (row) => row.formatter(row.left),
     },
     {
       key: "right",
       header: rightCandidate?.name || "Right",
-      render: (row) => row.formatter(row.right)
+      render: (row) => row.formatter(row.right),
     },
-    { key: "winner", header: "Winner" }
+    { key: "winner", header: "Winner" },
   ];
 
   function handleLeftChange(nextId) {
@@ -750,7 +767,7 @@ function CompareDashboard({ data, accent }) {
 
     if (nextId === rightId) {
       setRightId(
-        candidates.find((candidate) => candidate.id !== nextId)?.id || nextId
+        candidates.find((candidate) => candidate.id !== nextId)?.id || nextId,
       );
     }
   }
@@ -760,7 +777,7 @@ function CompareDashboard({ data, accent }) {
 
     if (nextId === leftId) {
       setLeftId(
-        candidates.find((candidate) => candidate.id !== nextId)?.id || nextId
+        candidates.find((candidate) => candidate.id !== nextId)?.id || nextId,
       );
     }
   }
@@ -770,8 +787,8 @@ function CompareDashboard({ data, accent }) {
       <article className="panel panel-span-12 panel-pad">
         <PanelHeader
           kicker="Pick Two"
-          title="Head-To-Head Manager Comparison"
-          copy="Choose any two managers from the filtered slice and compare their output side by side."
+          title="Manager Comparison"
+          copy="Choose any two managers from the filtered slice and compare them side by side."
         />
         <div className="compare-selector-grid">
           <label className="form-field">
@@ -809,26 +826,34 @@ function CompareDashboard({ data, accent }) {
       <article className="panel panel-span-6 panel-pad">
         <PanelHeader
           kicker="Manager A"
-          title="Selected Profile"
-          copy="A compact read of the first selected manager."
+          title="Profile Snapshot"
+          copy="The most important numbers for the first selected manager."
         />
-        <CompareProfileCard label="Manager A" candidate={leftCandidate} tone="is-left" />
+        <CompareProfileCard
+          label="Manager A"
+          candidate={leftCandidate}
+          tone="is-left"
+        />
       </article>
 
       <article className="panel panel-span-6 panel-pad">
         <PanelHeader
           kicker="Manager B"
-          title="Selected Profile"
-          copy="A compact read of the second selected manager."
+          title="Profile Snapshot"
+          copy="The most important numbers for the second selected manager."
         />
-        <CompareProfileCard label="Manager B" candidate={rightCandidate} tone="is-right" />
+        <CompareProfileCard
+          label="Manager B"
+          candidate={rightCandidate}
+          tone="is-right"
+        />
       </article>
 
-      <article className="panel panel-span-8 panel-pad">
+      <article className="panel panel-span-7 panel-pad">
         <PanelHeader
           kicker="Trend"
           title="MTD Head-To-Head"
-          copy="The trend line shows who is actually ahead over time, not just at the latest total."
+          copy="The trend shows who is ahead over time, not just on the latest total."
         />
         <LineTrendChart
           data={comparisonSeries}
@@ -836,32 +861,23 @@ function CompareDashboard({ data, accent }) {
             {
               key: "left",
               label: leftCandidate?.name || "Manager A",
-              color: accent
+              color: accent,
             },
             {
               key: "right",
               label: rightCandidate?.name || "Manager B",
-              color: "#6f8bff"
-            }
+              color: "#6f8bff",
+            },
           ]}
           height={320}
         />
       </article>
 
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Readout"
-          title="Head-To-Head Notes"
-          copy="Quick takeaways from the selected manager pair."
-        />
-        <InsightStack insights={comparisonNotes} />
-      </article>
-
-      <article className="panel panel-span-12 panel-pad">
+      <article className="panel panel-span-5 panel-pad">
         <PanelHeader
           kicker="Scoreboard"
-          title="Comparison Snapshot"
-          copy="The key gaps between the two selected managers at a glance."
+          title="Head-To-Head Snapshot"
+          copy="The key gaps between the selected managers at a glance."
         />
         <MiniStatGrid cards={compareCards} />
       </article>
@@ -883,28 +899,116 @@ function CompareDashboard({ data, accent }) {
   );
 }
 
+function AttendanceOverview({ summary, breakdown }) {
+  const segments = [
+    {
+      label: "Present",
+      value:
+        breakdown?.find((item) => item.label === "PRESENT")?.mtd ||
+        summary.presentDays ||
+        0,
+      color: "var(--accent)",
+    },
+    {
+      label: "Leave",
+      value:
+        breakdown?.find((item) => item.label === "LEAVE")?.mtd ||
+        summary.leaveDays ||
+        0,
+      color: "#f4b267",
+    },
+    {
+      label: "Absent",
+      value:
+        breakdown?.find((item) => item.label === "ABSENT")?.mtd ||
+        summary.absentDays ||
+        0,
+      color: "#ea6f6f",
+    },
+  ];
+  const total = segments.reduce(
+    (runningTotal, segment) => runningTotal + segment.value,
+    0,
+  );
+  let progress = 0;
+  const ringFill = total
+    ? `conic-gradient(${segments
+        .map((segment) => {
+          const start = progress;
+          progress += (segment.value / total) * 100;
+          return `${segment.color} ${start}% ${progress}%`;
+        })
+        .join(", ")})`
+    : "conic-gradient(#e5ebf3 0% 100%)";
+
+  return (
+    <div className="attendance-overview">
+      <div className="attendance-ring" style={{ background: ringFill }}>
+        <div className="attendance-ring-center">
+          <strong>{formatPercent(summary.presentRatePct)}</strong>
+          <span>Present rate</span>
+          <small>{formatNumber(summary.employeeCount)} employees</small>
+        </div>
+      </div>
+
+      <div className="attendance-legend">
+        {segments.map((segment) => (
+          <div key={segment.label} className="attendance-legend-row">
+            <span className="attendance-legend-key">
+              <span
+                className="attendance-legend-dot"
+                style={{ backgroundColor: segment.color }}
+              />
+              {segment.label}
+            </span>
+            <strong>{formatNumber(segment.value)}</strong>
+          </div>
+        ))}
+        <div className="attendance-legend-row is-muted">
+          <span>On-time check-in</span>
+          <strong>{formatPercent(summary.onTimeRatePct)}</strong>
+        </div>
+        <div className="attendance-legend-row is-muted">
+          <span>Pending requests</span>
+          <strong>{formatNumber(summary.pendingRegularizations)}</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AttendanceDashboard({ data, accent }) {
-  const actionCards = [
+  const summaryCards = [
     {
-      label: "Pending Queue",
-      value: formatNumber(data.summary?.pendingRegularizations),
-      detail: "Regularization actions still pending"
+      label: "Checked In",
+      value: formatNumber(data.summary?.presentDays),
+      detail: "Final present employee-days",
     },
     {
-      label: "Absent Days",
+      label: "Not Checked In",
       value: formatNumber(data.summary?.absentDays),
-      detail: "Final unresolved absences"
+      detail: "Final unresolved absences",
     },
     {
-      label: "Leave Days",
+      label: "On Leave",
       value: formatNumber(data.summary?.leaveDays),
-      detail: "Leave movement in the active window"
+      detail: "Leave employee-days",
+    },
+    {
+      label: "Pending Requests",
+      value: formatNumber(data.summary?.pendingRegularizations),
+      detail: "Regularization follow-up",
     },
     {
       label: "On-Time Check-In",
       value: formatPercent(data.summary?.onTimeRatePct),
-      detail: "Check-ins before 09:45 AM"
-    }
+      detail: "Check-ins before 09:45 AM",
+    },
+    {
+      label: "Avg Hours",
+      value: formatHours(data.summary?.avgWorkingHours),
+      detail: "Across present days",
+    },
   ];
   const employeeColumns = [
     { key: "employeeCode", header: "Employee Code" },
@@ -912,7 +1016,7 @@ function AttendanceDashboard({ data, accent }) {
     {
       key: "owner",
       header: "Owner",
-      render: (row) => `${row.asm} | ${row.managerName}`
+      render: (row) => `${row.asm} | ${row.managerName}`,
     },
     { key: "roleName", header: "Role" },
     {
@@ -932,7 +1036,12 @@ function AttendanceDashboard({ data, accent }) {
           />
           <span className="cell-sub">{row.latestAttendanceDate}</span>
         </div>
-      )
+      ),
+    },
+    {
+      key: "attendancePct",
+      header: "Attendance %",
+      render: (row) => formatPercent(row.attendancePct),
     },
     {
       key: "latestRegularizationStatus",
@@ -950,46 +1059,64 @@ function AttendanceDashboard({ data, accent }) {
             }
           />
           <span className="cell-sub">
-            {row.latestLeaveType !== "-" ? row.latestLeaveType : row.latestCheckInTime}
+            {row.latestLeaveType !== "-"
+              ? row.latestLeaveType
+              : row.latestCheckInTime}
           </span>
         </div>
-      )
+      ),
     },
     {
       key: "presentDays",
       header: "Present",
-      render: (row) => formatNumber(row.presentDays)
+      render: (row) => formatNumber(row.presentDays),
     },
     {
       key: "leaveDays",
       header: "Leave",
-      render: (row) => formatNumber(row.leaveDays)
+      render: (row) => formatNumber(row.leaveDays),
     },
     {
       key: "absentDays",
       header: "Absent",
-      render: (row) => formatNumber(row.absentDays)
-    },
-    {
-      key: "attendancePct",
-      header: "Attendance %",
-      render: (row) => formatPercent(row.attendancePct)
+      render: (row) => formatNumber(row.absentDays),
     },
     {
       key: "avgWorkingHours",
       header: "Avg Hours",
-      render: (row) => formatHours(row.avgWorkingHours)
+      render: (row) => formatHours(row.avgWorkingHours),
     },
     {
       key: "pendingRegularizations",
       header: "Pending Reg.",
-      render: (row) => formatNumber(row.pendingRegularizations)
-    }
+      render: (row) => formatNumber(row.pendingRegularizations),
+    },
   ];
 
   return (
     <section className="content-grid">
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Overview"
+          title="Attendance Snapshot"
+          copy="A quick attendance read inspired by a clean HR dashboard pattern."
+        />
+        <AttendanceOverview
+          summary={data.summary || {}}
+          breakdown={data.statusBreakdown}
+        />
+      </article>
+
       <article className="panel panel-span-8 panel-pad">
+        <PanelHeader
+          kicker="Summary"
+          title="Attendance Health"
+          copy="The key cards you can use to explain attendance performance in one pass."
+        />
+        <MiniStatGrid cards={summaryCards} />
+      </article>
+
+      <article className="panel panel-span-7 panel-pad">
         <PanelHeader
           kicker="Daily Movement"
           title="Attendance Trend"
@@ -999,27 +1126,18 @@ function AttendanceDashboard({ data, accent }) {
           data={data.totalSeries}
           lines={[
             { key: "present", label: "Present", color: accent },
-            { key: "leave", label: "Leave", color: "#ffbc73" },
-            { key: "absent", label: "Absent", color: "#6f8bff" }
+            { key: "leave", label: "Leave", color: "#f4b267" },
+            { key: "absent", label: "Absent", color: "#ea6f6f" },
           ]}
           height={320}
         />
       </article>
 
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Action Pulse"
-          title="Attendance Health"
-          copy="The pieces most likely to need a manager follow-up today."
-        />
-        <MiniStatGrid cards={actionCards} />
-      </article>
-
-      <article className="panel panel-span-6 panel-pad">
+      <article className="panel panel-span-5 panel-pad">
         <PanelHeader
           kicker="Manager Queue"
-          title="Exception Load By Manager"
-          copy="Pending regularizations and final absences are combined here to surface manager follow-up pressure."
+          title="Follow-Up by Manager"
+          copy="Managers with the biggest exception load stay visible for action."
         />
         <MetricBars
           items={data.managerQueue}
@@ -1033,92 +1151,15 @@ function AttendanceDashboard({ data, accent }) {
               <span>{formatNumber(item.employees)} employees</span>
             </>
           )}
-        />
-      </article>
-
-      <article className="panel panel-span-6 panel-pad">
-        <PanelHeader
-          kicker="Regularization Trend"
-          title="Pending vs Approved"
-          copy="Use the daily queue movement to see whether the team is clearing regularization pressure."
-        />
-        <LineTrendChart
-          data={data.regularizationTrend}
-          lines={[
-            { key: "pending", label: "Pending", color: accent },
-            { key: "approved", label: "Approved", color: "#5fe0b0" },
-            { key: "absent", label: "Absent", color: "#6f8bff" }
-          ]}
-          height={320}
-        />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Status Mix"
-          title="Final Status Breakdown"
-          copy="Read the share of present, leave, and absent employee-days."
-        />
-        <MetricBars
-          items={data.statusBreakdown}
-          valueKey="mtd"
-          renderMeta={(item) =>
-            `${formatPercent(item.achievementPct)} of all records | ${formatNumber(item.pending || 0)} pending`
-          }
-          renderFooter={(item) => (
-            <>
-              <span>{formatNumber(item.mtd)} employee-days</span>
-              <span>{formatPercent(item.achievementPct)}</span>
-            </>
-          )}
-        />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="ASM Board"
-          title="ASM Attendance Health"
-          copy="ASM groups ranked by final present rate across the active window."
-        />
-        <MetricBars
-          items={data.asmPerformance}
-          valueKey="mtd"
-          renderMeta={(item) =>
-            `${formatNumber(item.employees)} employees | ${formatHours(item.avgWorkingHours)} avg hrs`
-          }
-          renderFooter={(item) => (
-            <>
-              <span>{formatPercent(item.achievementPct)} present rate</span>
-              <span>{formatNumber(item.cities)} cities</span>
-            </>
-          )}
-        />
-      </article>
-
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Leave Signals"
-          title="Top Leave Reasons"
-          copy="The most common leave reasons in the active slice."
-        />
-        <MetricBars
-          items={data.leaveTypes}
-          valueKey="mtd"
-          renderMeta={(item) => `${formatPercent(item.achievementPct)} of leave entries`}
-          renderFooter={(item) => (
-            <>
-              <span>{formatNumber(item.mtd)} leave rows</span>
-              <span>{formatPercent(item.achievementPct)}</span>
-            </>
-          )}
+          emptyMessage="No manager queue rows available."
         />
       </article>
 
       <article className="panel panel-span-12 panel-pad">
         <PanelHeader
-          kicker="Exception Table"
-          title="Employee Exception View"
-          copy="Employees stay sorted toward the top when attendance is weak, absences are high, or regularizations are still pending."
+          kicker="Employee View"
+          title="Attendance Exception Table"
+          copy="Employees with weaker attendance and pending requests stay easiest to review here."
         />
         <DataTable
           columns={employeeColumns}
