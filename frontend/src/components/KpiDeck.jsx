@@ -37,11 +37,11 @@ export default function KpiDeck({ cards, accent }) {
   }
 
   return (
-    <div className="kpi-grid">
+    <div className="kpi-grid is-stacked">
       {cards.map((card, index) => (
         <article
           key={card.kpiName}
-          className="kpi-card"
+          className="kpi-card is-stacked"
           style={{
             "--card-accent": index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length],
             "--card-accent-soft": hexToRgba(
@@ -54,40 +54,67 @@ export default function KpiDeck({ cards, accent }) {
             )
           }}
         >
-          <div className="kpi-top">
-            <div>
-              <span className="kpi-name">{card.kpiName}</span>
-              <strong className="kpi-value">{formatNumber(card.mtd)}</strong>
+          <div className="kpi-top is-stacked">
+            <span className="kpi-name">{card.kpiName}</span>
+          </div>
+
+          <div className="kpi-card-body">
+            <div className="kpi-chart-panel">
+              <LineTrendChart
+                data={card.series}
+                lines={[
+                  {
+                    key: "value",
+                    label: card.kpiName,
+                    color:
+                      index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length]
+                  }
+                ]}
+                height={180}
+                showArea={false}
+              />
             </div>
-            <span
-              className={`delta-chip ${
-                card.deltaPct >= 0 ? "is-positive" : "is-negative"
-              }`}
-            >
-              {card.deltaPct >= 0 ? "+" : ""}
-              {formatPercent(card.deltaPct)}
-            </span>
-          </div>
 
-          <div className="kpi-meta">
-            <span>Target {formatNumber(card.target)}</span>
-            <span>FTD {formatNumber(card.ftd)}</span>
-            <span>{formatPercent(card.achievementPct)} achieved</span>
+            <div className="kpi-stats-grid">
+              <div className="kpi-stat-item">
+                <span className="kpi-stat-label">Target</span>
+                <strong className="kpi-stat-value">{formatNumber(card.target)}</strong>
+              </div>
+              <div className="kpi-stat-item">
+                <span className="kpi-stat-label">FTD</span>
+                <strong className="kpi-stat-value">{formatNumber(card.ftd)}</strong>
+              </div>
+              <div className="kpi-stat-item is-featured">
+                <span className="kpi-stat-label">MTD</span>
+                <strong className="kpi-stat-value">{formatNumber(card.mtd)}</strong>
+              </div>
+              <div className="kpi-stat-item">
+                <span className="kpi-stat-label">LM</span>
+                <strong className="kpi-stat-value">{formatNumber(card.lm)}</strong>
+              </div>
+              <div className="kpi-stat-item">
+                <span className="kpi-stat-label">LMTD</span>
+                <strong className="kpi-stat-value">{formatNumber(card.lmtd)}</strong>
+              </div>
+              <div className="kpi-stat-item">
+                <span className="kpi-stat-label">Achievement</span>
+                <strong className="kpi-stat-value">
+                  {formatPercent(card.achievementPct)}
+                </strong>
+              </div>
+              <div className="kpi-stat-item">
+                <span className="kpi-stat-label">Delta</span>
+                <strong
+                  className={`kpi-stat-value ${
+                    card.deltaPct >= 0 ? "is-positive-text" : "is-negative-text"
+                  }`}
+                >
+                  {card.deltaPct >= 0 ? "+" : ""}
+                  {formatPercent(card.deltaPct)}
+                </strong>
+              </div>
+            </div>
           </div>
-
-          <LineTrendChart
-            data={card.series}
-            lines={[
-              {
-                key: "value",
-                label: card.kpiName,
-                color: index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length]
-              }
-            ]}
-            height={120}
-            compact
-            showArea={false}
-          />
         </article>
       ))}
     </div>

@@ -3,8 +3,7 @@ import { formatDate } from "../utils/dateRange.js";
 const KPI_FACTORS = [
   { name: "FTR", base: 95 },
   { name: "GAD", base: 80 },
-  { name: "ACT SOCIETY", base: 110 },
-  { name: "RETAIL OUTER", base: 88 }
+  { name: "ACT SOCIETY", base: 110 }
 ];
 
 const MANAGER_PROFILES = [
@@ -179,4 +178,3 @@ export function createSeedRecords() {
 
   return records;
 }
-

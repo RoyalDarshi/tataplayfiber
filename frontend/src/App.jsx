@@ -8,7 +8,6 @@ import FilterBar from "./components/FilterBar.jsx";
 import Sidebar from "./components/layout/Sidebar.jsx";
 import SummaryStats from "./components/SummaryStats.jsx";
 import DashboardContent from "./pages/DashboardContent.jsx";
-import { formatDateRange, formatNumber } from "./utils/formatters.js";
 
 const CASCADING_FILTER_FIELDS = [
   ["circle", "circles"],
@@ -16,8 +15,7 @@ const CASCADING_FILTER_FIELDS = [
   ["cluster", "clusters"],
   ["society", "societies"],
   ["manager", "managers"],
-  ["role", "roles"],
-  ["kpi", "kpis"]
+  ["role", "roles"]
 ];
 
 const INITIAL_FILTERS = {
@@ -27,21 +25,10 @@ const INITIAL_FILTERS = {
   society: "All",
   manager: "All",
   role: "All",
-  kpi: "All",
   period: "last-30-days",
   startDate: "",
   endDate: ""
 };
-
-function countActiveFilters(filters) {
-  return Object.entries(filters).reduce((total, [key, value]) => {
-    if (key === "period") {
-      return value && value !== "last-30-days" ? total + 1 : total;
-    }
-
-    return value && value !== "All" && value !== "" ? total + 1 : total;
-  }, 0);
-}
 
 function normalizeFilters(currentFilters, options) {
   let nextFilters = currentFilters;
@@ -153,7 +140,6 @@ export default function App() {
     filters.society,
     filters.manager,
     filters.role,
-    filters.kpi,
     filters.period,
     filters.startDate,
     filters.endDate
@@ -218,7 +204,6 @@ export default function App() {
     "--accent-soft": activeMeta?.accentSoft || "rgba(95, 224, 176, 0.22)",
     "--surface-glow": activeMeta?.glow || "rgba(95, 224, 176, 0.28)"
   };
-  const activeFilterCount = countActiveFilters(filters);
 
   return (
     <div className="app-shell" style={themeStyle}>
@@ -229,50 +214,10 @@ export default function App() {
       />
 
       <main className="content">
-        <section className="hero-panel panel">
-          <div>
-            <p className="section-kicker">Multi Dashboard Suite</p>
-            <h2 className="hero-title">
-              {activeMeta?.title || "Fiber Dashboard"}
-            </h2>
-            <p className="hero-copy">
-              {activeMeta?.description ||
-                "Modern, responsive KPI and charting dashboard for fiber performance."}
-            </p>
-
-            <div className="chip-row">
-              <span className="chip">
-                {formatDateRange(
-                  dashboardData?.meta?.dateRange?.startDate,
-                  dashboardData?.meta?.dateRange?.endDate
-                )}
-              </span>
-              <span className="chip">
-                {formatNumber(dashboardData?.meta?.totalRecords)} rows
-              </span>
-              <span className="chip">{activeFilterCount} active filters</span>
-              {loadingData && <span className="chip chip--live">Refreshing</span>}
-            </div>
-          </div>
-
-          <aside className="highlight-card">
-            <span className="highlight-kicker">
-              {dashboardData?.highlight?.eyebrow || "Highlight"}
-            </span>
-            <strong className="highlight-title">
-              {dashboardData?.highlight?.title || "Ready"}
-            </strong>
-            <div className="highlight-value">
-              {formatNumber(dashboardData?.highlight?.value)}
-            </div>
-            <p className="highlight-copy">
-              {dashboardData?.highlight?.secondary ||
-                "Seed the database to view the latest aggregated performance."}
-            </p>
-            <span className="highlight-chip">
-              {dashboardData?.highlight?.deltaLabel || "Modern responsive layout"}
-            </span>
-          </aside>
+        <section className="hero-panel hero-panel--simple panel">
+          <h2 className="hero-title hero-title--compact">
+            {activeMeta?.title || "Fiber Dashboard"}
+          </h2>
         </section>
 
         <FilterBar
@@ -287,12 +232,12 @@ export default function App() {
           <section className="panel error-panel">{error}</section>
         ) : dashboardData ? (
           <>
-            <SummaryStats summary={dashboardData.summary} />
             <DashboardContent
               dashboardId={activeDashboard}
               data={dashboardData}
               accent={activeMeta?.accent || "#5fe0b0"}
             />
+            <SummaryStats summary={dashboardData.summary} />
           </>
         ) : (
           <section className="panel loading-panel">Loading dashboard data...</section>

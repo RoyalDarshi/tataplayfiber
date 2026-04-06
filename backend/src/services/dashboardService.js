@@ -17,6 +17,8 @@ const FILTER_COLUMN_MAP = {
   kpi: "kpi_name"
 };
 
+const HIDDEN_KPI_NAME = "RETAIL OUTER";
+
 function round(value) {
   return Number(value.toFixed(1));
 }
@@ -323,7 +325,10 @@ function buildInsights({ summary, kpiCards, circles, managers }) {
 function buildWhereClause(filters) {
   const dateWindow = resolveDateRange(filters);
   const values = [dateWindow.startDate, dateWindow.endDate];
-  const conditions = ["record_date BETWEEN $1 AND $2"];
+  const conditions = [
+    "record_date BETWEEN $1 AND $2",
+    `UPPER(kpi_name) <> '${HIDDEN_KPI_NAME}'`
+  ];
 
   Object.entries(FILTER_COLUMN_MAP).forEach(([filterKey, columnName]) => {
     const value = filters[filterKey];

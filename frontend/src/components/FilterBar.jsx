@@ -5,7 +5,6 @@ const SELECT_FIELDS = [
   { key: "society", label: "Society", source: "societies" },
   { key: "manager", label: "Manager", source: "managers" },
   { key: "role", label: "Role", source: "roles" },
-  { key: "kpi", label: "KPI", source: "kpis" },
   { key: "period", label: "Period", source: "periods" }
 ];
 
@@ -18,11 +17,7 @@ export default function FilterBar({
 }) {
   return (
     <section className="panel filter-panel">
-      <div className="panel-header">
-        <div>
-          <p className="section-kicker">Controls</p>
-          <h2 className="section-title">Interactive Filters</h2>
-        </div>
+      <div className="filter-actions">
         <button
           type="button"
           className="button button--secondary"
@@ -87,4 +82,3 @@ export default function FilterBar({
     </section>
   );
 }
-

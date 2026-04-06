@@ -6,12 +6,7 @@ export default function Sidebar({
   return (
     <aside className="sidebar panel">
       <div className="brand-block">
-        <p className="brand-kicker">Tata Play Fiber</p>
-        <h1 className="brand-title">Dashboard Studio</h1>
-        <p className="brand-copy">
-          Modern React dashboards with responsive KPI cards, charts, filters,
-          and reusable layouts for multiple business views.
-        </p>
+        <h1 className="brand-title">Tata Play Fiber</h1>
       </div>
 
       <nav className="sidebar-nav">
@@ -24,20 +19,10 @@ export default function Sidebar({
             }`}
             onClick={() => onSelectDashboard(dashboard.id)}
           >
-            <span className="nav-label">{dashboard.shortLabel}</span>
             <span className="nav-title">{dashboard.title}</span>
           </button>
         ))}
       </nav>
-
-      <div className="sidebar-footer">
-        <p className="sidebar-note">Responsive by design</p>
-        <p className="sidebar-copy">
-          Desktop gets a full command-center layout. Tablet and mobile stack
-          into a touch-friendly flow without losing charts or filters.
-        </p>
-      </div>
     </aside>
   );
 }
-
