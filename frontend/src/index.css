@@ -363,6 +363,39 @@ button {
   font-size: 0.9rem;
 }
 
+.mini-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+}
+
+.mini-stat-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mini-stat-label {
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+}
+
+.mini-stat-value {
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.mini-stat-copy {
+  color: var(--text-body);
+  font-size: 0.88rem;
+}
+
 .section-title {
   margin: 4px 0 0;
   font-size: 1.4rem;
@@ -664,6 +697,84 @@ button {
   font-size: 0.88rem;
 }
 
+.compare-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.compare-card {
+  border-radius: 22px;
+  border: 1px solid var(--panel-border);
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 250, 255, 0.82));
+}
+
+.compare-card.is-left {
+  background: linear-gradient(180deg, var(--accent-soft), rgba(255, 255, 255, 0.94));
+}
+
+.compare-card.is-right {
+  background: linear-gradient(180deg, rgba(111, 139, 255, 0.18), rgba(255, 255, 255, 0.94));
+}
+
+.compare-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.compare-card-label {
+  display: block;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+}
+
+.compare-card-name {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.compare-card-copy {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-body);
+  font-size: 0.9rem;
+}
+
+.compare-card-metrics {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.compare-card-metric {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(115, 145, 173, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compare-card-metric span {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.compare-card-metric strong {
+  font-size: 1.05rem;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -690,6 +801,53 @@ button {
 
 .data-table td {
   color: var(--text-strong);
+}
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cell-sub {
+  color: var(--text-body);
+  font-size: 0.84rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.status-pill.is-positive {
+  background: rgba(95, 224, 176, 0.18);
+  color: #177a5d;
+}
+
+.status-pill.is-negative {
+  background: rgba(255, 122, 122, 0.16);
+  color: #b34850;
+}
+
+.status-pill.is-warning {
+  background: rgba(255, 188, 115, 0.18);
+  color: #9b5a12;
+}
+
+.status-pill.is-info {
+  background: rgba(111, 139, 255, 0.16);
+  color: #4764c9;
+}
+
+.status-pill.is-neutral {
+  background: rgba(118, 146, 174, 0.12);
+  color: var(--text-body);
 }
 
 .society-grid {

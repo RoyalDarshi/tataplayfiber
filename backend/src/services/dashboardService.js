@@ -229,6 +229,38 @@ function buildManagerPerformance(rows) {
   ).slice(0, 10);
 }
 
+function buildManagerComparisonCandidates(rows) {
+  return sortByMtd(
+    [...groupBy(rows, (row) => `${row.manager_name}|${row.role}|${row.city}`)].map(
+      ([compoundKey, bucket]) => {
+        const [name, role, city] = compoundKey.split("|");
+        const target = sumRows(bucket, "target");
+        const mtd = sumRows(bucket, "mtd");
+        const lmtd = sumRows(bucket, "lmtd");
+        const topKpi = buildKpiCards(bucket)[0]?.kpiName || "KPI";
+
+        return {
+          id: compoundKey,
+          name,
+          role,
+          city,
+          circle: bucket[0].circle,
+          target,
+          ftd: sumRows(bucket, "ftd"),
+          mtd,
+          lmtd,
+          customers: sumRows(bucket, "customer_base"),
+          homePassed: sumRows(bucket, "home_passed"),
+          achievementPct: calculatePercentage(mtd, target),
+          deltaPct: calculateDelta(mtd, lmtd),
+          primaryKpi: topKpi,
+          series: buildTotalSeries(bucket)
+        };
+      }
+    )
+  );
+}
+
 function buildRolePerformance(rows) {
   return sortByMtd(
     [...groupBy(rows, (row) => row.role).entries()].map(([role, bucket]) => {
@@ -247,7 +279,7 @@ function buildRolePerformance(rows) {
   );
 }
 
-function buildHighlight(dashboardId, { kpiCards, circles, managers }) {
+function buildHighlight(dashboardId, { kpiCards, circles, managers, compareCandidates }) {
   if (dashboardId === "leaderboard-dashboard") {
     const leader = managers[0];
     return leader
@@ -262,14 +294,21 @@ function buildHighlight(dashboardId, { kpiCards, circles, managers }) {
   }
 
   if (dashboardId === "compare-dashboard") {
-    const leader = circles[0];
+    const leader = compareCandidates[0];
+    const challenger = compareCandidates[1];
     return leader
       ? {
-          eyebrow: "Top Circle",
-          title: leader.label,
-          value: leader.mtd,
-          secondary: `${leader.achievementPct}% achievement`,
-          deltaLabel: `${leader.customers.toLocaleString("en-IN")} customers`
+          eyebrow: "Head To Head",
+          title: challenger ? `${leader.name} vs ${challenger.name}` : leader.name,
+          value: challenger ? leader.mtd - challenger.mtd : leader.mtd,
+          secondary: challenger
+            ? `${leader.name} leads by ${(leader.mtd - challenger.mtd).toLocaleString(
+                "en-IN"
+              )} MTD`
+            : `${leader.achievementPct}% of target`,
+          deltaLabel: challenger
+            ? `${leader.achievementPct}% vs ${challenger.achievementPct}% achieved`
+            : `${leader.primaryKpi} leading KPI`
         }
       : null;
   }
@@ -286,11 +325,16 @@ function buildHighlight(dashboardId, { kpiCards, circles, managers }) {
     : null;
 }
 
-function buildInsights(dashboardId, { summary, kpiCards, circles, managers, roles }) {
+function buildInsights(
+  dashboardId,
+  { summary, kpiCards, circles, managers, roles, compareCandidates }
+) {
   const topKpi = kpiCards[0];
   const topCircle = circles[0];
   const topManager = managers[0];
   const topRole = roles[0];
+  const leader = compareCandidates[0];
+  const challenger = compareCandidates[1];
   const insights = [];
 
   if (dashboardId === "leaderboard-dashboard") {
@@ -322,11 +366,11 @@ function buildInsights(dashboardId, { summary, kpiCards, circles, managers, role
   }
 
   if (dashboardId === "compare-dashboard") {
-    if (topCircle) {
+    if (leader && challenger) {
       insights.push(
-        `${topCircle.label} leads circle comparison with ${topCircle.mtd.toLocaleString(
+        `${leader.name} is ahead of ${challenger.name} by ${(leader.mtd - challenger.mtd).toLocaleString(
           "en-IN"
-        )} MTD.`
+        )} MTD in the current slice.`
       );
     }
 
@@ -338,7 +382,7 @@ function buildInsights(dashboardId, { summary, kpiCards, circles, managers, role
 
     if (topKpi) {
       insights.push(
-        `${topKpi.kpiName} remains the strongest KPI comparison point at ${topKpi.achievementPct}% of target.`
+        `${topKpi.kpiName} remains the strongest KPI reference point at ${topKpi.achievementPct}% of target.`
       );
     }
 
@@ -496,6 +540,7 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
   const clusters = buildClusterPerformance(rows);
   const societies = buildSocietyPerformance(rows);
   const managers = buildManagerPerformance(rows);
+  const compareCandidates = buildManagerComparisonCandidates(rows);
   const roles = buildRolePerformance(rows);
 
   if (activeDashboard.id === "regional-network") {
@@ -509,13 +554,19 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
       dateRange: dateWindow
     },
     summary,
-    highlight: buildHighlight(dashboardId, { kpiCards, circles, managers }),
+    highlight: buildHighlight(dashboardId, {
+      kpiCards,
+      circles,
+      managers,
+      compareCandidates
+    }),
     insights: buildInsights(dashboardId, {
       summary,
       kpiCards,
       circles,
       managers,
-      roles
+      roles,
+      compareCandidates
     }),
     totalSeries: buildTotalSeries(rows),
     kpiCards,
@@ -523,6 +574,7 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
     clusters: clusters.slice(0, 8),
     societies,
     managers,
+    compareCandidates,
     roles,
     filtersApplied: {
       ...filters,

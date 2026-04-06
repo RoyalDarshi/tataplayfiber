@@ -44,6 +44,16 @@ const PERFORMANCE_FILTER_FIELDS = [
   { key: "period", label: "Period", source: "periods" }
 ];
 
+const COMPARE_FILTER_FIELDS = [
+  { key: "circle", label: "Circle", source: "circles" },
+  { key: "city", label: "City", source: "cities" },
+  { key: "cluster", label: "Cluster", source: "clusters" },
+  { key: "society", label: "Society", source: "societies" },
+  { key: "role", label: "Role", source: "roles" },
+  { key: "kpi", label: "KPI", source: "kpis" },
+  { key: "period", label: "Period", source: "periods" }
+];
+
 const ATTENDANCE_FILTER_FIELDS = [
   { key: "circle", label: "State", source: "circles" },
   { key: "city", label: "City", source: "cities" },
@@ -189,6 +199,16 @@ export default function App() {
     setFilters((current) => normalizeFilters(current, filterOptions));
   }, [filterOptions]);
 
+  useEffect(() => {
+    if (activeDashboard !== "compare-dashboard") {
+      return;
+    }
+
+    setFilters((current) =>
+      current.manager === "All" ? current : { ...current, manager: "All" }
+    );
+  }, [activeDashboard]);
+
   function handleFilterChange(field, value) {
     setFilters((current) => {
       if (field === "period") {
@@ -244,7 +264,9 @@ export default function App() {
   const filterFields =
     activeDashboard === "manager-pulse"
       ? ATTENDANCE_FILTER_FIELDS
-      : PERFORMANCE_FILTER_FIELDS;
+      : activeDashboard === "compare-dashboard"
+        ? COMPARE_FILTER_FIELDS
+        : PERFORMANCE_FILTER_FIELDS;
 
   return (
     <div className="app-shell" style={themeStyle}>

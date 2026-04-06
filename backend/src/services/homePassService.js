@@ -121,9 +121,13 @@ function buildHomePassCoverage(rows, keyBuilder) {
         sumRows(bucket, "customer_base"),
         sumRows(bucket, "home_passed")
       ),
+      cities: new Set(bucket.map((row) => row.city)).size,
       societies: new Set(bucket.map((row) => row.society)).size,
       managers: new Set(bucket.map((row) => row.manager_name)).size,
-      circles: new Set(bucket.map((row) => row.circle)).size
+      sharePct: calculatePercentage(
+        sumRows(bucket, "home_passed"),
+        sumRows(rows, "home_passed")
+      )
     })),
     "homePassed"
   );
@@ -167,6 +171,29 @@ function buildHomePassSocietyCoverage(rows) {
     .slice(0, 8);
 }
 
+function buildHomePassConversionHotspots(rows) {
+  return buildHomePassCoverage(rows, (row) => `${row.city}|${row.circle}`)
+    .map((item) => {
+      const [city, circle] = item.key.split("|");
+
+      return {
+        ...item,
+        label: city,
+        city,
+        circle
+      };
+    })
+    .filter((item) => item.homePassed > 0)
+    .sort((left, right) => {
+      if (right.connectRatePct !== left.connectRatePct) {
+        return right.connectRatePct - left.connectRatePct;
+      }
+
+      return right.customers - left.customers;
+    })
+    .slice(0, 6);
+}
+
 function buildHomePassManagerRows(rows) {
   return sortByNumericValue(
     [...groupBy(rows, (row) => `${row.manager_name}|${row.role}|${row.city}`)].map(
@@ -205,10 +232,11 @@ function buildHomePassHighlight(circles) {
     : null;
 }
 
-function buildHomePassInsights({ summary, circles, cities, managers }) {
+function buildHomePassInsights({ summary, circles, cities, managers, hotspots }) {
   const topCircle = circles[0];
   const topCity = cities[0];
   const topManager = managers[0];
+  const topHotspot = hotspots[0];
   const insights = [];
 
   if (topCircle) {
@@ -223,6 +251,12 @@ function buildHomePassInsights({ summary, circles, cities, managers }) {
   if (topCity) {
     insights.push(
       `${topCity.city}, ${topCity.circle} is converting ${topCity.connectRatePct}% of its home pass into customers.`
+    );
+  }
+
+  if (topHotspot) {
+    insights.push(
+      `${topHotspot.city} is the top conversion hotspot at ${topHotspot.connectRatePct}% connect rate.`
     );
   }
 
@@ -246,6 +280,7 @@ export function buildHomePassPayload(activeDashboard, rows, dateWindow, filters)
   const circles = buildHomePassCircleCoverage(rows);
   const cities = buildHomePassCityCoverage(rows);
   const societies = buildHomePassSocietyCoverage(rows);
+  const hotspots = buildHomePassConversionHotspots(rows);
   const managers = buildHomePassManagerRows(rows);
 
   return {
@@ -256,10 +291,17 @@ export function buildHomePassPayload(activeDashboard, rows, dateWindow, filters)
     },
     summary,
     highlight: buildHomePassHighlight(circles),
-    insights: buildHomePassInsights({ summary, circles, cities, managers }),
+    insights: buildHomePassInsights({
+      summary,
+      circles,
+      cities,
+      managers,
+      hotspots
+    }),
     totalSeries: buildHomePassSeries(rows),
     circles: circles.slice(0, 6),
     cities,
+    hotspots,
     societies,
     managers,
     filtersApplied: {

@@ -194,6 +194,46 @@ function buildAttendanceStatusBreakdown(rows) {
   );
 }
 
+function buildAttendanceManagerQueue(rows) {
+  return [...groupBy(rows, (row) => row.managerName).entries()]
+    .map(([managerName, bucket]) => {
+      const pendingRegularizations = countRows(
+        bucket,
+        (row) => row.regularizationStatus === "Pending"
+      );
+      const absentDays = countRows(bucket, (row) => row.finalStatus === "ABSENT");
+      const leaveDays = countRows(bucket, (row) => row.finalStatus === "LEAVE");
+      const presentDays = countRows(bucket, (row) => row.finalStatus === "PRESENT");
+      const issueCount = pendingRegularizations + absentDays;
+
+      return {
+        label: managerName,
+        managerName,
+        mtd: issueCount,
+        issueCount,
+        pendingRegularizations,
+        absentDays,
+        leaveDays,
+        presentDays,
+        employees: new Set(bucket.map((row) => row.employeeCode)).size,
+        achievementPct: calculatePercentage(presentDays, bucket.length),
+        avgWorkingHours: average(
+          bucket
+            .filter((row) => row.finalStatus === "PRESENT")
+            .map((row) => row.workingHours)
+        )
+      };
+    })
+    .sort((left, right) => {
+      if (right.issueCount !== left.issueCount) {
+        return right.issueCount - left.issueCount;
+      }
+
+      return left.achievementPct - right.achievementPct;
+    })
+    .slice(0, 8);
+}
+
 function buildAttendanceAsmPerformance(rows) {
   return sortByMtd(
     [...groupBy(rows, (row) => row.asm).entries()].map(([asm, bucket]) => {
@@ -214,6 +254,18 @@ function buildAttendanceAsmPerformance(rows) {
       };
     })
   );
+}
+
+function buildAttendanceRegularizationTrend(rows) {
+  return [...groupBy(rows, (row) => row.attendanceDate).entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([date, bucket]) => ({
+      date,
+      label: formatDateLabel(date),
+      pending: countRows(bucket, (row) => row.regularizationStatus === "Pending"),
+      approved: countRows(bucket, (row) => row.regularizationStatus === "Approved"),
+      absent: countRows(bucket, (row) => row.finalStatus === "ABSENT")
+    }));
 }
 
 function buildAttendanceRegularizationBreakdown(rows) {
@@ -245,6 +297,9 @@ function buildAttendanceLeaveTypes(rows) {
 function buildAttendanceEmployeeRows(rows) {
   return [...groupBy(rows, (row) => row.employeeCode).entries()]
     .map(([employeeCode, bucket]) => {
+      const latestRecord = [...bucket].sort((left, right) =>
+        right.attendanceDate.localeCompare(left.attendanceDate)
+      )[0];
       const presentDays = countRows(bucket, (row) => row.finalStatus === "PRESENT");
       const leaveDays = countRows(bucket, (row) => row.finalStatus === "LEAVE");
       const absentDays = countRows(bucket, (row) => row.finalStatus === "ABSENT");
@@ -270,7 +325,12 @@ function buildAttendanceEmployeeRows(rows) {
             .filter((row) => row.finalStatus === "PRESENT")
             .map((row) => row.workingHours)
         ),
-        pendingRegularizations
+        pendingRegularizations,
+        latestAttendanceDate: latestRecord?.attendanceDate || "",
+        latestFinalStatus: latestRecord?.finalStatus || "-",
+        latestRegularizationStatus: latestRecord?.regularizationStatus || "-",
+        latestCheckInTime: latestRecord?.checkInTime || "-",
+        latestLeaveType: latestRecord?.leaveType || "-"
       };
     })
     .sort((left, right) => {
@@ -287,37 +347,31 @@ function buildAttendanceEmployeeRows(rows) {
     .slice(0, 12);
 }
 
-function buildAttendanceHighlight(summary, asmPerformance) {
-  const leader = asmPerformance[0];
+function buildAttendanceHighlight(summary, managerQueue) {
+  const queueLeader = managerQueue[0];
 
-  return leader
-    ? {
-        eyebrow: "Best ASM",
-        title: leader.label,
-        value: leader.achievementPct,
-        valueDisplay: `${leader.achievementPct}%`,
-        secondary: `${leader.mtd.toLocaleString("en-IN")} present days in window`,
-        deltaLabel: `${leader.employees} employees across ${leader.cities} cities`
-      }
-    : {
-        eyebrow: "Present Rate",
-        title: "Attendance Health",
-        value: summary.presentRatePct,
-        valueDisplay: `${summary.presentRatePct}%`,
-        secondary: `${summary.presentDays.toLocaleString("en-IN")} present employee-days`,
-        deltaLabel: `${summary.pendingRegularizations} pending regularizations`
-      };
+  return {
+    eyebrow: "Action Queue",
+    title: `${summary.pendingRegularizations} Pending`,
+    value: summary.pendingRegularizations,
+    secondary: `${summary.absentDays.toLocaleString("en-IN")} unresolved absences in the active window`,
+    deltaLabel: queueLeader
+      ? `${queueLeader.label} has the heaviest manager queue`
+      : `${summary.presentRatePct}% present rate`
+  };
 }
 
 function buildAttendanceInsights({
   summary,
   statusBreakdown,
   asmPerformance,
-  leaveTypes
+  leaveTypes,
+  managerQueue
 }) {
   const topStatus = statusBreakdown[0];
   const topAsm = asmPerformance[0];
   const topLeaveType = leaveTypes[0];
+  const topQueue = managerQueue[0];
   const insights = [];
 
   if (topStatus) {
@@ -329,6 +383,12 @@ function buildAttendanceInsights({
   if (topAsm) {
     insights.push(
       `${topAsm.label} is leading with ${topAsm.achievementPct}% present rate across ${topAsm.employees} employees.`
+    );
+  }
+
+  if (topQueue) {
+    insights.push(
+      `${topQueue.label} has ${topQueue.issueCount} exception records across pending regularizations and final absences.`
     );
   }
 
@@ -365,7 +425,9 @@ export function buildAttendancePayload(activeDashboard, filters) {
   const { rows, dateWindow } = filterAttendanceRows(filters);
   const summary = buildAttendanceSummary(rows);
   const statusBreakdown = buildAttendanceStatusBreakdown(rows);
+  const managerQueue = buildAttendanceManagerQueue(rows);
   const asmPerformance = buildAttendanceAsmPerformance(rows);
+  const regularizationTrend = buildAttendanceRegularizationTrend(rows);
   const regularizations = buildAttendanceRegularizationBreakdown(rows);
   const leaveTypes = buildAttendanceLeaveTypes(rows);
 
@@ -377,16 +439,19 @@ export function buildAttendancePayload(activeDashboard, filters) {
       dateRange: dateWindow
     },
     summary,
-    highlight: buildAttendanceHighlight(summary, asmPerformance),
+    highlight: buildAttendanceHighlight(summary, managerQueue),
     insights: buildAttendanceInsights({
       summary,
       statusBreakdown,
       asmPerformance,
-      leaveTypes
+      leaveTypes,
+      managerQueue
     }),
     totalSeries: buildAttendanceSeries(rows),
     statusBreakdown,
+    managerQueue,
     asmPerformance,
+    regularizationTrend,
     regularizations,
     leaveTypes,
     employeeRows: buildAttendanceEmployeeRows(rows),
