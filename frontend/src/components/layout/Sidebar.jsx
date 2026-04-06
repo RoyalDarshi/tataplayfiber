@@ -9,8 +9,8 @@ export default function Sidebar({
         <p className="brand-kicker">Tata Play Fiber</p>
         <h1 className="brand-title">Dashboard Studio</h1>
         <p className="brand-copy">
-          Modern React dashboards with responsive KPI cards, charts, filters,
-          and reusable layouts for multiple business views.
+          Responsive business views for sales, home pass coverage, and
+          attendance monitoring in one shared workspace.
         </p>
       </div>
 

@@ -12,6 +12,7 @@ const SELECT_FIELDS = [
 export default function FilterBar({
   filters,
   options,
+  fields = SELECT_FIELDS,
   onFilterChange,
   onResetFilters,
   loading
@@ -34,7 +35,7 @@ export default function FilterBar({
       </div>
 
       <div className="filter-grid">
-        {SELECT_FIELDS.map((field) => (
+        {fields.map((field) => (
           <label key={field.key} className="form-field">
             <span>{field.label}</span>
             <select

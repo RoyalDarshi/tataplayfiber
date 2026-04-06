@@ -33,6 +33,28 @@ const INITIAL_FILTERS = {
   endDate: ""
 };
 
+const PERFORMANCE_FILTER_FIELDS = [
+  { key: "circle", label: "Circle", source: "circles" },
+  { key: "city", label: "City", source: "cities" },
+  { key: "cluster", label: "Cluster", source: "clusters" },
+  { key: "society", label: "Society", source: "societies" },
+  { key: "manager", label: "Manager", source: "managers" },
+  { key: "role", label: "Role", source: "roles" },
+  { key: "kpi", label: "KPI", source: "kpis" },
+  { key: "period", label: "Period", source: "periods" }
+];
+
+const ATTENDANCE_FILTER_FIELDS = [
+  { key: "circle", label: "State", source: "circles" },
+  { key: "city", label: "City", source: "cities" },
+  { key: "cluster", label: "ASM", source: "clusters" },
+  { key: "society", label: "CSM", source: "societies" },
+  { key: "manager", label: "Manager", source: "managers" },
+  { key: "role", label: "Role", source: "roles" },
+  { key: "kpi", label: "Status", source: "kpis" },
+  { key: "period", label: "Period", source: "periods" }
+];
+
 function countActiveFilters(filters) {
   return Object.entries(filters).reduce((total, [key, value]) => {
     if (key === "period") {
@@ -122,7 +144,7 @@ export default function App() {
         setError("");
         const [payload, nextFilterOptions] = await Promise.all([
           fetchDashboardData(activeDashboard, filters),
-          fetchFilters(filters)
+          fetchFilters(activeDashboard, filters)
         ]);
 
         if (!cancelled) {
@@ -219,6 +241,10 @@ export default function App() {
     "--surface-glow": activeMeta?.glow || "rgba(95, 224, 176, 0.28)"
   };
   const activeFilterCount = countActiveFilters(filters);
+  const filterFields =
+    activeDashboard === "manager-pulse"
+      ? ATTENDANCE_FILTER_FIELDS
+      : PERFORMANCE_FILTER_FIELDS;
 
   return (
     <div className="app-shell" style={themeStyle}>
@@ -248,7 +274,8 @@ export default function App() {
                 )}
               </span>
               <span className="chip">
-                {formatNumber(dashboardData?.meta?.totalRecords)} rows
+                {formatNumber(dashboardData?.meta?.totalRecords)}{" "}
+                {dashboardData?.meta?.recordsLabel || "rows"}
               </span>
               <span className="chip">{activeFilterCount} active filters</span>
               {loadingData && <span className="chip chip--live">Refreshing</span>}
@@ -263,7 +290,8 @@ export default function App() {
               {dashboardData?.highlight?.title || "Ready"}
             </strong>
             <div className="highlight-value">
-              {formatNumber(dashboardData?.highlight?.value)}
+              {dashboardData?.highlight?.valueDisplay ||
+                formatNumber(dashboardData?.highlight?.value)}
             </div>
             <p className="highlight-copy">
               {dashboardData?.highlight?.secondary ||
@@ -278,6 +306,7 @@ export default function App() {
         <FilterBar
           filters={filters}
           options={filterOptions}
+          fields={filterFields}
           onFilterChange={handleFilterChange}
           onResetFilters={handleResetFilters}
           loading={loadingData}

@@ -1,5 +1,7 @@
 import pool from "../database.js";
+import { getAttendanceFilterOptions, buildAttendancePayload } from "./attendanceService.js";
 import { dashboardRegistry } from "../config/dashboardRegistry.js";
+import { buildHomePassPayload } from "./homePassService.js";
 import {
   formatDate,
   formatDateLabel,
@@ -353,7 +355,24 @@ async function getDistinctValues(columnName, filters) {
   return rows.map((row) => row.value);
 }
 
-export async function getFilterOptions(filters = {}) {
+export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters = {}) {
+  let dashboardId = dashboardRegistry[0].id;
+  let filters = maybeFilters;
+
+  if (
+    typeof dashboardIdOrFilters === "object" &&
+    dashboardIdOrFilters !== null &&
+    !Array.isArray(dashboardIdOrFilters)
+  ) {
+    filters = dashboardIdOrFilters;
+  } else {
+    dashboardId = dashboardIdOrFilters;
+  }
+
+  if (dashboardId === "manager-pulse") {
+    return getAttendanceFilterOptions(filters);
+  }
+
   const dateWindow = resolveDateRange(filters);
   const [circles, cities, clusters, societies, managers, roles, kpis] =
     await Promise.all([
@@ -383,6 +402,11 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
   const activeDashboard =
     dashboardRegistry.find((item) => item.id === dashboardId) ||
     dashboardRegistry[0];
+
+  if (activeDashboard.id === "manager-pulse") {
+    return buildAttendancePayload(activeDashboard, filters);
+  }
+
   const { text, values, dateWindow } = buildWhereClause(filters);
 
   const { rows } = await pool.query(
@@ -416,6 +440,10 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
   const societies = buildSocietyPerformance(rows);
   const managers = buildManagerPerformance(rows);
   const roles = buildRolePerformance(rows);
+
+  if (activeDashboard.id === "regional-network") {
+    return buildHomePassPayload(activeDashboard, rows, dateWindow, filters);
+  }
 
   return {
     meta: {

@@ -5,7 +5,7 @@ import {
 } from "../utils/formatters.js";
 
 export default function SummaryStats({ summary }) {
-  const statCards = [
+  const fallbackCards = [
     {
       label: "Target",
       value: formatNumber(summary?.target),
@@ -47,6 +47,20 @@ export default function SummaryStats({ summary }) {
       detail: "Network reach"
     }
   ];
+  const statCards = summary?.cards
+    ? summary.cards.map((card) => ({
+        label: card.label,
+        value:
+          card.format === "percent"
+            ? formatPercent(card.value)
+            : card.format === "hours"
+              ? `${Number(card.value || 0).toFixed(1)} hrs`
+              : card.format === "compact"
+                ? formatCompactNumber(card.value)
+                : formatNumber(card.value),
+        detail: card.detail
+      }))
+    : fallbackCards;
 
   return (
     <section className="summary-grid">
@@ -60,4 +74,3 @@ export default function SummaryStats({ summary }) {
     </section>
   );
 }
-

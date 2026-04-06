@@ -13,7 +13,10 @@ router.get("/health", (_request, response) => {
 
 router.get("/filters", async (request, response, next) => {
   try {
-    const filters = await getFilterOptions(request.query);
+    const { dashboardId, ...filtersQuery } = request.query;
+    const filters = dashboardId
+      ? await getFilterOptions(dashboardId, filtersQuery)
+      : await getFilterOptions(filtersQuery);
     response.json(filters);
   } catch (error) {
     next(error);

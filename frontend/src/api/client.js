@@ -24,8 +24,8 @@ export function fetchDashboards() {
   return request("dashboards");
 }
 
-export function fetchFilters(filters = {}) {
-  return request("filters", filters);
+export function fetchFilters(dashboardId, filters = {}) {
+  return request("filters", { dashboardId, ...filters });
 }
 
 export function fetchDashboardData(dashboardId, filters) {

@@ -11,23 +11,22 @@ export const dashboardRegistry = [
   },
   {
     id: "regional-network",
-    shortLabel: "Region",
-    title: "Regional Network View",
+    shortLabel: "Home Pass",
+    title: "Home Pass Dashboard",
     description:
-      "Compare circles, clusters, and city-level throughput with a responsive regional operations dashboard.",
-    accent: "#7fb7ff",
-    accentSoft: "rgba(127, 183, 255, 0.22)",
-    glow: "rgba(127, 183, 255, 0.26)"
+      "Track home pass expansion, city coverage, and connection efficiency across the active operating footprint.",
+    accent: "#4fa7ff",
+    accentSoft: "rgba(79, 167, 255, 0.22)",
+    glow: "rgba(79, 167, 255, 0.26)"
   },
   {
     id: "manager-pulse",
-    shortLabel: "Managers",
-    title: "Manager Pulse",
+    shortLabel: "Attendance",
+    title: "Attendance Dashboard",
     description:
-      "Track manager productivity, role contribution, and KPI mix across the active date window.",
-    accent: "#ffbc73",
-    accentSoft: "rgba(255, 188, 115, 0.22)",
-    glow: "rgba(255, 188, 115, 0.28)"
+      "Monitor employee attendance, leave movement, regularizations, and ASM-level attendance health in one place.",
+    accent: "#ff9a62",
+    accentSoft: "rgba(255, 154, 98, 0.22)",
+    glow: "rgba(255, 154, 98, 0.28)"
   }
 ];
-

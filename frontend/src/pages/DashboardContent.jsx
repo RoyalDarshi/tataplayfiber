@@ -1,7 +1,9 @@
+import DataTable from "../components/DataTable.jsx";
 import LineTrendChart from "../components/charts/LineTrendChart.jsx";
 import InsightStack from "../components/InsightStack.jsx";
 import KpiDeck from "../components/KpiDeck.jsx";
 import LeaderboardTable from "../components/LeaderboardTable.jsx";
+import MetricBars from "../components/MetricBars.jsx";
 import PerformanceBars from "../components/PerformanceBars.jsx";
 import { formatNumber, formatPercent } from "../utils/formatters.js";
 
@@ -35,6 +37,31 @@ function SocietyCards({ societies }) {
           <div className="society-meta">
             <span>{society.primaryKpi}</span>
             <span>{formatPercent(society.achievementPct)}</span>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function CoverageCards({ societies }) {
+  if (!societies?.length) {
+    return <div className="empty-state">No societies match the selected filters.</div>;
+  }
+
+  return (
+    <div className="society-grid">
+      {societies.map((society) => (
+        <article
+          key={`${society.society}-${society.cluster}`}
+          className="society-card"
+        >
+          <span className="society-name">{society.society}</span>
+          <p className="society-copy">{`${society.cluster} | ${society.city}`}</p>
+          <strong className="society-value">{formatNumber(society.homePassed)}</strong>
+          <div className="society-meta">
+            <span>{formatNumber(society.customers)} customers</span>
+            <span>{formatPercent(society.connectRatePct)}</span>
           </div>
         </article>
       ))}
@@ -115,126 +142,277 @@ function SalesOverview({ data, accent }) {
   );
 }
 
-function RegionalNetwork({ data, accent }) {
+function HomePassDashboard({ data, accent }) {
+  const managerColumns = [
+    { key: "name", header: "Manager" },
+    { key: "role", header: "Role" },
+    {
+      key: "location",
+      header: "Location",
+      render: (row) => `${row.city}, ${row.circle}`
+    },
+    {
+      key: "homePassed",
+      header: "Home Passed",
+      render: (row) => formatNumber(row.homePassed)
+    },
+    {
+      key: "customers",
+      header: "Customers",
+      render: (row) => formatNumber(row.customers)
+    },
+    {
+      key: "connectRatePct",
+      header: "Connect Rate",
+      render: (row) => formatPercent(row.connectRatePct)
+    },
+    {
+      key: "societies",
+      header: "Societies",
+      render: (row) => formatNumber(row.societies)
+    }
+  ];
+
   return (
     <section className="content-grid">
-      <article className="panel panel-span-7 panel-pad">
+      <article className="panel panel-span-8 panel-pad">
         <PanelHeader
-          kicker="Regional Trend"
-          title="Network Throughput"
-          copy="Track output movement and compare current production with target shape."
+          kicker="Coverage Trend"
+          title="Daily Home Pass vs Customer Base"
+          copy="See how coverage expansion and active customer demand move together across the selected footprint."
         />
         <LineTrendChart
           data={data.totalSeries}
           lines={[
-            { key: "mtd", label: "MTD", color: accent },
-            { key: "ftd", label: "FTD", color: "#5fe0b0" }
+            { key: "homePassed", label: "Home Passed", color: accent },
+            { key: "customers", label: "Customers", color: "#5fe0b0" }
           ]}
           height={320}
         />
       </article>
 
-      <article className="panel panel-span-5 panel-pad">
+      <article className="panel panel-span-4 panel-pad">
         <PanelHeader
-          kicker="Circle Ranking"
-          title="Regional Leaders"
-          copy="Best circles by MTD and target achievement."
+          kicker="Quick Read"
+          title="Coverage Insights"
+          copy="Short operating takeaways for expansion and conversion."
         />
-        <PerformanceBars
+        <InsightStack insights={data.insights} />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="Circle Coverage"
+          title="Home Pass by Circle"
+          copy="Larger bars indicate wider coverage footprint across the selected circle."
+        />
+        <MetricBars
           items={data.circles}
-          renderMeta={(item) => `${formatPercent(item.achievementPct)} achievement`}
+          valueKey="homePassed"
+          renderMeta={(item) =>
+            `${formatNumber(item.customers)} customers | ${formatPercent(item.connectRatePct)} connect rate`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>{formatNumber(item.managers)} managers</span>
+              <span>{formatNumber(item.societies)} societies</span>
+            </>
+          )}
         />
       </article>
 
       <article className="panel panel-span-6 panel-pad">
         <PanelHeader
-          kicker="Cluster Focus"
-          title="Cluster Performance"
-          copy="Clusters are ranked by active output inside the filter selection."
+          kicker="City Density"
+          title="City Coverage Board"
+          copy="Track where customer pull is strongest against the available home pass footprint."
         />
-        <PerformanceBars
-          items={data.clusters}
-          renderMeta={(item) => `${item.city}, ${item.circle} | ${item.societies} societies`}
+        <MetricBars
+          items={data.cities}
+          valueKey="homePassed"
+          renderMeta={(item) =>
+            `${item.city}, ${item.circle} | ${formatNumber(item.customers)} customers`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>{formatPercent(item.connectRatePct)} connect rate</span>
+              <span>{formatNumber(item.societies)} societies</span>
+            </>
+          )}
         />
-      </article>
-
-      <article className="panel panel-span-6 panel-pad">
-        <PanelHeader
-          kicker="KPI Contribution"
-          title="KPI Performance Cards"
-          copy="Use KPI-level performance to understand the strongest regional levers."
-        />
-        <KpiDeck cards={data.kpiCards} accent={accent} />
       </article>
 
       <article className="panel panel-span-12 panel-pad">
         <PanelHeader
-          kicker="Society Coverage"
-          title="Top Societies by Output"
-          copy="Societies stay visible in a responsive card layout across screen sizes."
+          kicker="Society Reach"
+          title="Top Societies by Home Pass"
+          copy="The card layout keeps the strongest societies visible across desktop and mobile."
         />
-        <SocietyCards societies={data.societies} />
+        <CoverageCards societies={data.societies} />
+      </article>
+
+      <article className="panel panel-span-12 panel-pad">
+        <PanelHeader
+          kicker="Manager Board"
+          title="Coverage Leaders"
+          copy="Managers ranked by home pass footprint, customer base, and society coverage."
+        />
+        <DataTable
+          columns={managerColumns}
+          rows={data.managers}
+          rowKey={(row) => `${row.name}-${row.city}`}
+          emptyMessage="No manager coverage rows available."
+        />
       </article>
     </section>
   );
 }
 
-function ManagerPulse({ data, accent }) {
+function AttendanceDashboard({ data, accent }) {
+  const employeeColumns = [
+    { key: "employeeCode", header: "Employee Code" },
+    { key: "employeeName", header: "Employee Name" },
+    { key: "roleName", header: "Role" },
+    { key: "managerName", header: "Manager" },
+    { key: "asm", header: "ASM" },
+    {
+      key: "location",
+      header: "Location",
+      render: (row) => `${row.city}, ${row.state}`
+    },
+    {
+      key: "presentDays",
+      header: "Present",
+      render: (row) => formatNumber(row.presentDays)
+    },
+    {
+      key: "leaveDays",
+      header: "Leave",
+      render: (row) => formatNumber(row.leaveDays)
+    },
+    {
+      key: "absentDays",
+      header: "Absent",
+      render: (row) => formatNumber(row.absentDays)
+    },
+    {
+      key: "attendancePct",
+      header: "Attendance %",
+      render: (row) => formatPercent(row.attendancePct)
+    },
+    {
+      key: "avgWorkingHours",
+      header: "Avg Hours",
+      render: (row) => `${Number(row.avgWorkingHours || 0).toFixed(1)} hrs`
+    },
+    {
+      key: "pendingRegularizations",
+      header: "Pending Reg.",
+      render: (row) => formatNumber(row.pendingRegularizations)
+    }
+  ];
+
   return (
     <section className="content-grid">
-      <article className="panel panel-span-4 panel-pad">
-        <PanelHeader
-          kicker="Role Mix"
-          title="Role Contribution"
-          copy="See how ASM and CSM groups contribute to the active number."
-        />
-        <PerformanceBars
-          items={data.roles}
-          renderMeta={(item) => `${item.managers} managers active`}
-        />
-      </article>
-
       <article className="panel panel-span-8 panel-pad">
         <PanelHeader
-          kicker="Productivity Trend"
-          title="Manager Output Trend"
-          copy="Track overall MTD and FTD movement for the selected manager slice."
+          kicker="Daily Movement"
+          title="Attendance Trend"
+          copy="Track present, leave, and absent employee-days across the selected attendance window."
         />
         <LineTrendChart
           data={data.totalSeries}
           lines={[
-            { key: "mtd", label: "MTD", color: accent },
-            { key: "ftd", label: "FTD", color: "#86b9ff" }
+            { key: "present", label: "Present", color: accent },
+            { key: "leave", label: "Leave", color: "#ffbc73" },
+            { key: "absent", label: "Absent", color: "#6f8bff" }
           ]}
           height={320}
         />
       </article>
 
-      <article className="panel panel-span-8 panel-pad">
-        <PanelHeader
-          kicker="Team Board"
-          title="Manager Leaderboard"
-          copy="A clean, wide table for desktop and horizontal scroll on smaller screens."
-        />
-        <LeaderboardTable rows={data.managers} />
-      </article>
-
       <article className="panel panel-span-4 panel-pad">
         <PanelHeader
           kicker="Signals"
-          title="Manager Insights"
-          copy="Short summaries that spotlight where action is needed."
+          title="Attendance Insights"
+          copy="Short summaries that highlight where follow-up is needed."
         />
         <InsightStack insights={data.insights} />
       </article>
 
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Status Mix"
+          title="Final Status Breakdown"
+          copy="Read the share of present, leave, and absent employee-days."
+        />
+        <MetricBars
+          items={data.statusBreakdown}
+          valueKey="mtd"
+          renderMeta={(item) =>
+            `${formatPercent(item.achievementPct)} of all records | ${formatNumber(item.pending || 0)} pending`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>{formatNumber(item.mtd)} employee-days</span>
+              <span>{formatPercent(item.achievementPct)}</span>
+            </>
+          )}
+        />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="ASM Board"
+          title="ASM Attendance Health"
+          copy="Each ASM is ranked by final present employee-days in the selected window."
+        />
+        <MetricBars
+          items={data.asmPerformance}
+          valueKey="mtd"
+          renderMeta={(item) =>
+            `${formatNumber(item.employees)} employees | ${Number(item.avgWorkingHours || 0).toFixed(1)} avg hrs`
+          }
+          renderFooter={(item) => (
+            <>
+              <span>{formatPercent(item.achievementPct)} present rate</span>
+              <span>{formatNumber(item.cities)} cities</span>
+            </>
+          )}
+        />
+      </article>
+
+      <article className="panel panel-span-4 panel-pad">
+        <PanelHeader
+          kicker="Regularization"
+          title="Regularization Queue"
+          copy="Track which records are already approved and which still need action."
+        />
+        <MetricBars
+          items={data.regularizations}
+          valueKey="mtd"
+          renderMeta={(item) => `${formatPercent(item.achievementPct)} of filtered rows`}
+          renderFooter={(item) => (
+            <>
+              <span>{formatNumber(item.mtd)} rows</span>
+              <span>{formatPercent(item.achievementPct)}</span>
+            </>
+          )}
+        />
+      </article>
+
       <article className="panel panel-span-12 panel-pad">
         <PanelHeader
-          kicker="KPI Load"
-          title="KPI Cards by Manager Slice"
-          copy="Useful for understanding whether productivity is broad-based or concentrated."
+          kicker="Exception Table"
+          title="Employee Attendance View"
+          copy="Employees are sorted toward exceptions first so low attendance and pending regularizations stay visible."
         />
-        <KpiDeck cards={data.kpiCards} accent={accent} />
+        <DataTable
+          columns={employeeColumns}
+          rows={data.employeeRows}
+          rowKey={(row) => row.employeeCode}
+          emptyMessage="No employee attendance rows available."
+        />
       </article>
     </section>
   );
@@ -242,11 +420,11 @@ function ManagerPulse({ data, accent }) {
 
 export default function DashboardContent({ dashboardId, data, accent }) {
   if (dashboardId === "regional-network") {
-    return <RegionalNetwork data={data} accent={accent} />;
+    return <HomePassDashboard data={data} accent={accent} />;
   }
 
   if (dashboardId === "manager-pulse") {
-    return <ManagerPulse data={data} accent={accent} />;
+    return <AttendanceDashboard data={data} accent={accent} />;
   }
 
   return <SalesOverview data={data} accent={accent} />;
