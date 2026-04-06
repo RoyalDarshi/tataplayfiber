@@ -70,7 +70,8 @@ export default function KpiDeck({ cards, accent }) {
                       index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length]
                   }
                 ]}
-                height={180}
+                height={220}
+                compact
                 showArea={false}
               />
             </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   fetchDashboardData,
   fetchDashboards,
-  fetchFilters
+  fetchFilters,
 } from "./api/client.js";
 import FilterBar from "./components/FilterBar.jsx";
 import Sidebar from "./components/layout/Sidebar.jsx";
@@ -15,7 +15,7 @@ const CASCADING_FILTER_FIELDS = [
   ["cluster", "clusters"],
   ["society", "societies"],
   ["manager", "managers"],
-  ["role", "roles"]
+  ["role", "roles"],
 ];
 
 const INITIAL_FILTERS = {
@@ -27,7 +27,7 @@ const INITIAL_FILTERS = {
   role: "All",
   period: "last-30-days",
   startDate: "",
-  endDate: ""
+  endDate: "",
 };
 
 function normalizeFilters(currentFilters, options) {
@@ -76,7 +76,7 @@ export default function App() {
 
         setDashboards(dashboardResponse.dashboards || []);
         setActiveDashboard(
-          dashboardResponse.dashboards?.[0]?.id || "sales-overview"
+          dashboardResponse.dashboards?.[0]?.id || "sales-overview",
         );
       } catch (requestError) {
         if (!cancelled) {
@@ -109,7 +109,7 @@ export default function App() {
         setError("");
         const [payload, nextFilterOptions] = await Promise.all([
           fetchDashboardData(activeDashboard, filters),
-          fetchFilters(filters)
+          fetchFilters(filters),
         ]);
 
         if (!cancelled) {
@@ -142,7 +142,7 @@ export default function App() {
     filters.role,
     filters.period,
     filters.startDate,
-    filters.endDate
+    filters.endDate,
   ]);
 
   useEffect(() => {
@@ -159,7 +159,7 @@ export default function App() {
         return {
           ...current,
           period: value,
-          ...(value === "custom" ? {} : { startDate: "", endDate: "" })
+          ...(value === "custom" ? {} : { startDate: "", endDate: "" }),
         };
       }
 
@@ -167,13 +167,13 @@ export default function App() {
         return {
           ...current,
           [field]: value,
-          period: "custom"
+          period: "custom",
         };
       }
 
       return {
         ...current,
-        [field]: value
+        [field]: value,
       };
     });
   }
@@ -181,7 +181,7 @@ export default function App() {
   function handleResetFilters() {
     setFilters({
       ...INITIAL_FILTERS,
-      period: filterOptions?.periods?.[1]?.value || "last-30-days"
+      period: filterOptions?.periods?.[1]?.value || "last-30-days",
     });
   }
 
@@ -202,7 +202,7 @@ export default function App() {
   const themeStyle = {
     "--accent": activeMeta?.accent || "#5fe0b0",
     "--accent-soft": activeMeta?.accentSoft || "rgba(95, 224, 176, 0.22)",
-    "--surface-glow": activeMeta?.glow || "rgba(95, 224, 176, 0.28)"
+    "--surface-glow": activeMeta?.glow || "rgba(95, 224, 176, 0.28)",
   };
 
   return (
@@ -237,10 +237,12 @@ export default function App() {
               data={dashboardData}
               accent={activeMeta?.accent || "#5fe0b0"}
             />
-            <SummaryStats summary={dashboardData.summary} />
+            {/* <SummaryStats summary={dashboardData.summary} /> */}
           </>
         ) : (
-          <section className="panel loading-panel">Loading dashboard data...</section>
+          <section className="panel loading-panel">
+            Loading dashboard data...
+          </section>
         )}
       </main>
     </div>
