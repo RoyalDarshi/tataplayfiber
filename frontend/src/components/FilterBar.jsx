@@ -1,3 +1,5 @@
+import HierarchyHoverFilter from "./HierarchyHoverFilter.jsx";
+
 const SELECT_FIELDS = [
   { key: "circle", label: "Circle", source: "circles" },
   { key: "city", label: "City", source: "cities" },
@@ -5,6 +7,7 @@ const SELECT_FIELDS = [
   { key: "society", label: "Society", source: "societies" },
   { key: "manager", label: "Manager", source: "managers" },
   { key: "role", label: "Role", source: "roles" },
+  { key: "hierarchy", label: "Hierarchy", source: "managerHierarchy" },
   { key: "kpi", label: "KPI", source: "kpis" },
   { key: "period", label: "Period", source: "periods" },
 ];
@@ -22,24 +25,33 @@ export default function FilterBar({
       {fields.map((field) => (
         <label key={field.key} className="form-field">
           <span>{field.label}</span>
-          <select
-            className="control"
-            value={filters[field.key] || ""}
-            onChange={(event) => onFilterChange(field.key, event.target.value)}
-            disabled={loading}
-          >
-            {field.key !== "period" && <option value="All">All</option>}
-            {(options?.[field.source] || []).map((option) => {
-              const value = typeof option === "string" ? option : option.value;
-              const label = typeof option === "string" ? option : option.label;
+          {field.key === "hierarchy" ? (
+            <HierarchyHoverFilter
+              value={filters.hierarchy || "All"}
+              options={options?.managerHierarchy || []}
+              disabled={loading}
+              onChange={(nextValue) => onFilterChange("hierarchy", nextValue)}
+            />
+          ) : (
+            <select
+              className="control"
+              value={filters[field.key] || ""}
+              onChange={(event) => onFilterChange(field.key, event.target.value)}
+              disabled={loading}
+            >
+              {field.key !== "period" && <option value="All">All</option>}
+              {(options?.[field.source] || []).map((option) => {
+                const value = typeof option === "string" ? option : option.value;
+                const label = typeof option === "string" ? option : option.label;
 
-              return (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              );
-            })}
-          </select>
+                return (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
+          )}
         </label>
       ))}
 

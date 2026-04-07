@@ -385,6 +385,8 @@ export default function App() {
               dashboardId={activeDashboard}
               data={dashboardData}
               accent={activeMeta?.accent || "#5fe0b0"}
+              filters={filters}
+              filterOptions={filterOptions}
             />
           </>
         ) : (

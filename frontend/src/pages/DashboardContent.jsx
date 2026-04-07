@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DataTable from "../components/DataTable.jsx";
 import LineTrendChart from "../components/charts/LineTrendChart.jsx";
 import InsightStack from "../components/InsightStack.jsx";
@@ -7,6 +7,7 @@ import LeaderboardTable from "../components/LeaderboardTable.jsx";
 import MetricBars from "../components/MetricBars.jsx";
 import PerformanceBars from "../components/PerformanceBars.jsx";
 import { formatNumber, formatPercent } from "../utils/formatters.js";
+import { fetchDashboardData } from "../api/client.js";
 
 function PanelHeader({ kicker, title, copy }) {
   return (
@@ -153,9 +154,7 @@ function buildComparisonRows(leftCandidate, rightCandidate) {
 
 function buildCompareNotes(leftCandidate, rightCandidate) {
   if (!leftCandidate || !rightCandidate) {
-    return [
-      "Select two managers from the filtered slice to start the comparison.",
-    ];
+    return ["Select two people from the filtered slice to start the comparison."];
   }
 
   const mtdLeader =
@@ -185,7 +184,7 @@ function buildCompareNotes(leftCandidate, rightCandidate) {
 
 function CompareProfileCard({ label, candidate, tone }) {
   if (!candidate) {
-    return <div className="empty-state">No manager selected.</div>;
+    return <div className="empty-state">No person selected.</div>;
   }
 
   return (
@@ -747,9 +746,21 @@ function LeaderboardDashboard({ data }) {
 function CompareDashboard({ data, accent }) {
   const candidates = data.compareCandidates || [];
   const [leftId, setLeftId] = useState(candidates[0]?.id || "");
-  const [rightId, setRightId] = useState(
-    candidates[1]?.id || candidates[0]?.id || "",
-  );
+  const [rightId, setRightId] = useState(candidates[1]?.id || candidates[0]?.id || "");
+
+  const periods = data?.filterOptions?.periods || [];
+  const defaultPeriod =
+    periods.find((item) => item.value === "last-30-days")?.value ||
+    periods[1]?.value ||
+    periods[0]?.value ||
+    "last-30-days";
+  const [leftPeriod, setLeftPeriod] = useState(defaultPeriod);
+  const [rightPeriod, setRightPeriod] = useState(defaultPeriod);
+
+  const baseFilters = data?.filtersApplied || {};
+  const [leftPayload, setLeftPayload] = useState(null);
+  const [rightPayload, setRightPayload] = useState(null);
+  const [loadingSides, setLoadingSides] = useState(false);
 
   useEffect(() => {
     if (!candidates.length) {
@@ -758,30 +769,64 @@ function CompareDashboard({ data, accent }) {
       return;
     }
 
-    const firstId = candidates[0]?.id || "";
-    const secondId =
-      candidates.find((candidate) => candidate.id !== firstId)?.id || firstId;
     const candidateIds = new Set(candidates.map((candidate) => candidate.id));
+    const firstId = candidates[0]?.id || "";
+    const secondId = candidates[1]?.id || firstId;
 
     setLeftId((current) => (candidateIds.has(current) ? current : firstId));
-    setRightId((current) => {
-      if (candidateIds.has(current) && current !== leftId) {
-        return current;
+    setRightId((current) => (candidateIds.has(current) ? current : secondId));
+  }, [candidates]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSides() {
+      if (!leftId && !rightId) {
+        setLeftPayload(null);
+        setRightPayload(null);
+        return;
       }
 
-      return secondId;
-    });
-  }, [candidates, leftId]);
+      try {
+        setLoadingSides(true);
+        const [leftNext, rightNext] = await Promise.all([
+          fetchDashboardData("compare-dashboard", {
+            ...baseFilters,
+            period: leftPeriod,
+            startDate: "",
+            endDate: "",
+          }),
+          fetchDashboardData("compare-dashboard", {
+            ...baseFilters,
+            period: rightPeriod,
+            startDate: "",
+            endDate: "",
+          }),
+        ]);
+
+        if (!cancelled) {
+          setLeftPayload(leftNext);
+          setRightPayload(rightNext);
+        }
+      } finally {
+        if (!cancelled) setLoadingSides(false);
+      }
+    }
+
+    loadSides();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [baseFilters, leftPeriod, rightPeriod, leftId, rightId]);
+
+  const leftCandidates = leftPayload?.compareCandidates || candidates;
+  const rightCandidates = rightPayload?.compareCandidates || candidates;
 
   const leftCandidate =
-    candidates.find((candidate) => candidate.id === leftId) || candidates[0];
+    leftCandidates.find((candidate) => candidate.id === leftId) || leftCandidates[0];
   const rightCandidate =
-    candidates.find(
-      (candidate) =>
-        candidate.id === rightId && candidate.id !== leftCandidate?.id,
-    ) ||
-    candidates.find((candidate) => candidate.id !== leftCandidate?.id) ||
-    candidates[0];
+    rightCandidates.find((candidate) => candidate.id === rightId) || rightCandidates[0];
   const comparisonSeries = buildHeadToHeadSeries(leftCandidate, rightCandidate);
   const comparisonRows = buildComparisonRows(leftCandidate, rightCandidate);
   const winner =
@@ -829,12 +874,12 @@ function CompareDashboard({ data, accent }) {
     { key: "metric", header: "Metric" },
     {
       key: "left",
-      header: leftCandidate?.name || "Left",
+      header: leftCandidate?.name || "Person A",
       render: (row) => row.formatter(row.left),
     },
     {
       key: "right",
-      header: rightCandidate?.name || "Right",
+      header: rightCandidate?.name || "Person B",
       render: (row) => row.formatter(row.right),
     },
     { key: "winner", header: "Winner" },
@@ -842,22 +887,10 @@ function CompareDashboard({ data, accent }) {
 
   function handleLeftChange(nextId) {
     setLeftId(nextId);
-
-    if (nextId === rightId) {
-      setRightId(
-        candidates.find((candidate) => candidate.id !== nextId)?.id || nextId,
-      );
-    }
   }
 
   function handleRightChange(nextId) {
     setRightId(nextId);
-
-    if (nextId === leftId) {
-      setLeftId(
-        candidates.find((candidate) => candidate.id !== nextId)?.id || nextId,
-      );
-    }
   }
 
   return (
@@ -865,12 +898,12 @@ function CompareDashboard({ data, accent }) {
       <article className="panel panel-span-12 panel-pad">
         <PanelHeader
           kicker="Pick Two"
-          title="Manager Comparison"
-          copy="Choose any two managers from the filtered slice and compare them side by side."
+          title="Head-To-Head Comparison"
+          copy="Compare any two people side by side. They can be the same or different, and each side can use a different time period."
         />
         <div className="compare-selector-grid">
           <label className="form-field">
-            <span>Manager A</span>
+            <span>Person A</span>
             <select
               className="control"
               value={leftCandidate?.id || ""}
@@ -885,7 +918,7 @@ function CompareDashboard({ data, accent }) {
           </label>
 
           <label className="form-field">
-            <span>Manager B</span>
+            <span>Person B</span>
             <select
               className="control"
               value={rightCandidate?.id || ""}
@@ -898,17 +931,58 @@ function CompareDashboard({ data, accent }) {
               ))}
             </select>
           </label>
+
+          <label className="form-field">
+            <span>Period A</span>
+            <select
+              className="control"
+              value={leftPeriod}
+              onChange={(event) => setLeftPeriod(event.target.value)}
+            >
+              {(periods.length
+                ? periods
+                : [{ value: defaultPeriod, label: "Period" }]
+              ).map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="form-field">
+            <span>Period B</span>
+            <select
+              className="control"
+              value={rightPeriod}
+              onChange={(event) => setRightPeriod(event.target.value)}
+            >
+              {(periods.length
+                ? periods
+                : [{ value: defaultPeriod, label: "Period" }]
+              ).map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
+        {loadingSides ? (
+          <div className="empty-state" style={{ paddingTop: 12 }}>
+            Updating head-to-head periods...
+          </div>
+        ) : null}
       </article>
 
       <article className="panel panel-span-6 panel-pad">
         <PanelHeader
-          kicker="Manager A"
+          kicker="Person A"
           title="Profile Snapshot"
-          copy="The most important numbers for the first selected manager."
+          copy="Key numbers for the first selected person in Period A."
         />
         <CompareProfileCard
-          label="Manager A"
+          label="Person A"
           candidate={leftCandidate}
           tone="is-left"
         />
@@ -916,12 +990,12 @@ function CompareDashboard({ data, accent }) {
 
       <article className="panel panel-span-6 panel-pad">
         <PanelHeader
-          kicker="Manager B"
+          kicker="Person B"
           title="Profile Snapshot"
-          copy="The most important numbers for the second selected manager."
+          copy="Key numbers for the second selected person in Period B."
         />
         <CompareProfileCard
-          label="Manager B"
+          label="Person B"
           candidate={rightCandidate}
           tone="is-right"
         />
@@ -963,14 +1037,14 @@ function CompareDashboard({ data, accent }) {
       <article className="panel panel-span-12 panel-pad">
         <PanelHeader
           kicker="Metric Table"
-          title="Manager Vs Manager"
-          copy="Exact metric-by-metric values so you can see who wins where."
+          title="A vs B"
+          copy="Exact metric-by-metric values so you can see who wins where (across the chosen periods)."
         />
         <DataTable
           columns={comparisonColumns}
           rows={comparisonRows}
           rowKey={(row) => row.metric}
-          emptyMessage="No manager comparison rows available."
+          emptyMessage="No comparison rows available."
         />
       </article>
     </section>
@@ -1250,22 +1324,40 @@ function AttendanceDashboard({ data, accent }) {
   );
 }
 
-export default function DashboardContent({ dashboardId, data, accent }) {
+export default function DashboardContent({
+  dashboardId,
+  data,
+  accent,
+  filters,
+  filterOptions,
+}) {
+  const enrichedData = useMemo(() => {
+    if (dashboardId !== "compare-dashboard") {
+      return data;
+    }
+
+    return {
+      ...data,
+      filtersApplied: data?.filtersApplied || filters,
+      filterOptions: data?.filterOptions || filterOptions,
+    };
+  }, [dashboardId, data, filters, filterOptions]);
+
   if (dashboardId === "regional-network") {
-    return <HomePassDashboard data={data} accent={accent} />;
+    return <HomePassDashboard data={enrichedData} accent={accent} />;
   }
 
   if (dashboardId === "leaderboard-dashboard") {
-    return <LeaderboardDashboard data={data} accent={accent} />;
+    return <LeaderboardDashboard data={enrichedData} accent={accent} />;
   }
 
   if (dashboardId === "compare-dashboard") {
-    return <CompareDashboard data={data} accent={accent} />;
+    return <CompareDashboard data={enrichedData} accent={accent} />;
   }
 
   if (dashboardId === "manager-pulse") {
-    return <AttendanceDashboard data={data} accent={accent} />;
+    return <AttendanceDashboard data={enrichedData} accent={accent} />;
   }
 
-  return <SalesOverview data={data} accent={accent} />;
+  return <SalesOverview data={enrichedData} accent={accent} />;
 }
