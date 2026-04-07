@@ -19,11 +19,8 @@ export default function FilterBar({
 }) {
   return (
     <section className="panel filter-panel">
-      <div className="panel-header">
-        <div>
-          <p className="section-kicker">Controls</p>
-          <h2 className="section-title">Interactive Filters</h2>
-        </div>
+      <div className="panel-header" style={{ marginBottom: "12px", alignItems: "center" }}>
+        <h2 className="section-title" style={{ margin: 0, fontSize: "1.1rem" }}>Interactive Filters</h2>
         <button
           type="button"
           className="button button--secondary"
