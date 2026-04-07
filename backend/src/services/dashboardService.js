@@ -16,7 +16,10 @@ const FILTER_COLUMN_MAP = {
   society: "society",
   manager: "manager_name",
   role: "role",
-  kpi: "kpi_name"
+  kpi: "kpi_name",
+  asi: "asi",
+  csm: "csm",
+  asm: "asm"
 };
 
 function round(value) {
@@ -481,7 +484,7 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
   }
 
   const dateWindow = resolveDateRange(filters);
-  const [circles, cities, clusters, societies, managers, roles, kpis] =
+  const [circles, cities, clusters, societies, managers, roles, kpis, asis, csms, asms] =
     await Promise.all([
       getDistinctValues("circle", filters),
       getDistinctValues("city", filters),
@@ -489,7 +492,10 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
       getDistinctValues("society", filters),
       getDistinctValues("manager_name", filters),
       getDistinctValues("role", filters),
-      getDistinctValues("kpi_name", filters)
+      getDistinctValues("kpi_name", filters),
+      getDistinctValues("asi", filters),
+      getDistinctValues("csm", filters),
+      getDistinctValues("asm", filters)
     ]);
 
   return {
@@ -500,6 +506,9 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
     managers,
     roles,
     kpis,
+    asis,
+    csms,
+    asms,
     periods: getPeriodOptions(),
     defaultDateRange: dateWindow
   };
@@ -528,6 +537,9 @@ export async function getDashboardPayload(dashboardId, filters = {}) {
       entity_ms,
       manager_name,
       role,
+      asi,
+      csm,
+      asm,
       kpi_name,
       target,
       ftd,

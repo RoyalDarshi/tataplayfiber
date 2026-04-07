@@ -12,6 +12,9 @@ CREATE TABLE performance_records (
   entity_ms BIGINT NOT NULL,
   manager_name VARCHAR(128) NOT NULL,
   role VARCHAR(32) NOT NULL,
+  asi VARCHAR(128) NOT NULL,
+  csm VARCHAR(128) NOT NULL,
+  asm VARCHAR(128) NOT NULL,
   kpi_name VARCHAR(64) NOT NULL,
   target INTEGER NOT NULL DEFAULT 0,
   ftd INTEGER NOT NULL DEFAULT 0,
@@ -27,5 +30,8 @@ CREATE INDEX idx_performance_records_city ON performance_records (city);
 CREATE INDEX idx_performance_records_cluster ON performance_records (cluster);
 CREATE INDEX idx_performance_records_society ON performance_records (society);
 CREATE INDEX idx_performance_records_manager ON performance_records (manager_name);
+CREATE INDEX idx_performance_records_asi ON performance_records (asi);
+CREATE INDEX idx_performance_records_csm ON performance_records (csm);
+CREATE INDEX idx_performance_records_asm ON performance_records (asm);
 CREATE INDEX idx_performance_records_kpi ON performance_records (kpi_name);
 

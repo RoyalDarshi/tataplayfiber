@@ -5,7 +5,7 @@ import { createSeedRecords } from "../data/sampleData.js";
 function buildChunkInsert(rows) {
   const values = [];
   const placeholders = rows.map((row, rowIndex) => {
-    const baseIndex = rowIndex * 16;
+    const baseIndex = rowIndex * 19;
     values.push(
       row.recordDate,
       row.circle,
@@ -17,6 +17,9 @@ function buildChunkInsert(rows) {
       row.entityMs,
       row.managerName,
       row.role,
+      row.asi,
+      row.csm,
+      row.asm,
       row.kpiName,
       row.target,
       row.ftd,
@@ -25,7 +28,7 @@ function buildChunkInsert(rows) {
       row.lmtd
     );
 
-    const tuple = Array.from({ length: 16 }, (_, index) => `$${baseIndex + index + 1}`);
+    const tuple = Array.from({ length: 19 }, (_, index) => `$${baseIndex + index + 1}`);
     return `(${tuple.join(", ")})`;
   });
 
@@ -56,6 +59,9 @@ async function run() {
           entity_ms,
           manager_name,
           role,
+          asi,
+          csm,
+          asm,
           kpi_name,
           target,
           ftd,

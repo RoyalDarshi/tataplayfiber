@@ -17,6 +17,9 @@ const CASCADING_FILTER_FIELDS = [
   ["society", "societies"],
   ["manager", "managers"],
   ["role", "roles"],
+  ["asi", "asis"],
+  ["csm", "csms"],
+  ["asm", "asms"],
   ["kpi", "kpis"],
 ];
 
@@ -27,6 +30,9 @@ const INITIAL_FILTERS = {
   society: "All",
   manager: "All",
   role: "All",
+  asi: "All",
+  csm: "All",
+  asm: "All",
   kpi: "All",
   period: "last-30-days",
   startDate: "",
@@ -40,6 +46,9 @@ const PERFORMANCE_FILTER_FIELDS = [
   { key: "society", label: "Society", source: "societies" },
   { key: "manager", label: "Manager", source: "managers" },
   { key: "role", label: "Role", source: "roles" },
+  { key: "asi", label: "ASI", source: "asis" },
+  { key: "csm", label: "CSM", source: "csms" },
+  { key: "asm", label: "ASM", source: "asms" },
   { key: "kpi", label: "KPI", source: "kpis" },
   { key: "period", label: "Period", source: "periods" },
 ];
@@ -50,6 +59,9 @@ const COMPARE_FILTER_FIELDS = [
   { key: "cluster", label: "Cluster", source: "clusters" },
   { key: "society", label: "Society", source: "societies" },
   { key: "role", label: "Role", source: "roles" },
+  { key: "asi", label: "ASI", source: "asis" },
+  { key: "csm", label: "CSM", source: "csms" },
+  { key: "asm", label: "ASM", source: "asms" },
   { key: "kpi", label: "KPI", source: "kpis" },
   { key: "period", label: "Period", source: "periods" },
 ];
@@ -204,9 +216,13 @@ export default function App() {
       return;
     }
 
-    setFilters((current) =>
-      current.manager === "All" ? current : { ...current, manager: "All" },
-    );
+    setFilters((current) => ({
+      ...current,
+      ...(current.manager === "All" ? {} : { manager: "All" }),
+      ...(current.asi === "All" ? {} : { asi: "All" }),
+      ...(current.csm === "All" ? {} : { csm: "All" }),
+      ...(current.asm === "All" ? {} : { asm: "All" })
+    }));
   }, [activeDashboard]);
 
   function handleFilterChange(field, value) {

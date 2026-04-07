@@ -14,7 +14,10 @@ const MANAGER_PROFILES = [
     circle: "West",
     city: "Mumbai",
     cluster: "Cluster A",
-    society: "Lake View"
+    society: "Lake View",
+    asi: "Rajesh Kumar",
+    csm: "Sanjay Gupta",
+    asm: "Aarav Mehta"
   },
   {
     name: "Diya Shah",
@@ -22,7 +25,10 @@ const MANAGER_PROFILES = [
     circle: "West",
     city: "Mumbai",
     cluster: "Cluster B",
-    society: "Skyline Heights"
+    society: "Skyline Heights",
+    asi: "Rajesh Kumar",
+    csm: "Sanjay Gupta",
+    asm: "Diya Shah"
   },
   {
     name: "Neel Patil",
@@ -30,7 +36,10 @@ const MANAGER_PROFILES = [
     circle: "West",
     city: "Pune",
     cluster: "Cluster A",
-    society: "Green Residency"
+    society: "Green Residency",
+    asi: "Vikram Singh",
+    csm: "Neel Patil",
+    asm: "Kartik Joshi"
   },
   {
     name: "Riya Kulkarni",
@@ -38,7 +47,10 @@ const MANAGER_PROFILES = [
     circle: "West",
     city: "Pune",
     cluster: "Cluster B",
-    society: "Cedar Bloom"
+    society: "Cedar Bloom",
+    asi: "Vikram Singh",
+    csm: "Riya Kulkarni",
+    asm: "Manoj Das"
   },
   {
     name: "Ishaan Verma",
@@ -46,7 +58,10 @@ const MANAGER_PROFILES = [
     circle: "North",
     city: "Delhi",
     cluster: "Cluster C",
-    society: "Sunshine Homes"
+    society: "Sunshine Homes",
+    asi: "Ankit Sharma",
+    csm: "Priya Singh",
+    asm: "Ishaan Verma"
   },
   {
     name: "Sana Kapoor",
@@ -54,7 +69,10 @@ const MANAGER_PROFILES = [
     circle: "North",
     city: "Delhi",
     cluster: "Cluster D",
-    society: "Metro Park"
+    society: "Metro Park",
+    asi: "Ankit Sharma",
+    csm: "Priya Singh",
+    asm: "Sana Kapoor"
   },
   {
     name: "Kabir Singh",
@@ -62,7 +80,10 @@ const MANAGER_PROFILES = [
     circle: "North",
     city: "Jaipur",
     cluster: "Cluster C",
-    society: "Cedar Court"
+    society: "Cedar Court",
+    asi: "Naveen Jain",
+    csm: "Kabir Singh",
+    asm: "Amit Agarwal"
   },
   {
     name: "Anaya Bedi",
@@ -70,7 +91,10 @@ const MANAGER_PROFILES = [
     circle: "North",
     city: "Jaipur",
     cluster: "Cluster D",
-    society: "Amber Residency"
+    society: "Amber Residency",
+    asi: "Naveen Jain",
+    csm: "Anaya Bedi",
+    asm: "Rohit Verma"
   },
   {
     name: "Vihaan Rao",
@@ -78,7 +102,10 @@ const MANAGER_PROFILES = [
     circle: "South",
     city: "Bengaluru",
     cluster: "Cluster E",
-    society: "Palm Meadows"
+    society: "Palm Meadows",
+    asi: "Arjun Reddy",
+    csm: "Kiran Rao",
+    asm: "Vihaan Rao"
   },
   {
     name: "Mira Reddy",
@@ -86,7 +113,10 @@ const MANAGER_PROFILES = [
     circle: "South",
     city: "Bengaluru",
     cluster: "Cluster F",
-    society: "Pearl Habitat"
+    society: "Pearl Habitat",
+    asi: "Arjun Reddy",
+    csm: "Kiran Rao",
+    asm: "Mira Reddy"
   },
   {
     name: "Aditi Nair",
@@ -94,7 +124,10 @@ const MANAGER_PROFILES = [
     circle: "South",
     city: "Hyderabad",
     cluster: "Cluster E",
-    society: "Riverstone"
+    society: "Riverstone",
+    asi: "Prasad Babu",
+    csm: "Aditi Nair",
+    asm: "Rahul Dev"
   },
   {
     name: "Reyansh Iyer",
@@ -102,7 +135,10 @@ const MANAGER_PROFILES = [
     circle: "South",
     city: "Hyderabad",
     cluster: "Cluster F",
-    society: "Harbor Greens"
+    society: "Harbor Greens",
+    asi: "Prasad Babu",
+    csm: "Reyansh Iyer",
+    asm: "Mohan Krishnan"
   }
 ];
 
@@ -166,6 +202,9 @@ export function createSeedRecords() {
           entityMs: 920000000 + entityOffset,
           managerName: profile.name,
           role: profile.role,
+          asi: profile.asi,
+          csm: profile.csm,
+          asm: profile.asm,
           kpiName: kpi.name,
           target,
           ftd,
