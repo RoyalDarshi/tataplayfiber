@@ -465,6 +465,31 @@ async function getDistinctValues(columnName, filters) {
   return rows.map((row) => row.value);
 }
 
+async function getHierarchyOptions() {
+  const { rows } = await pool.query(
+    `SELECT DISTINCT asi, csm, asm FROM performance_records ORDER BY asi, csm, asm`
+  );
+
+  const options = [];
+  let currentAsi = null;
+  let currentCsm = null;
+
+  rows.forEach((row) => {
+    if (row.asi !== currentAsi) {
+      options.push({ value: `asi|${row.asi}`, label: `ASI: ${row.asi}` });
+      currentAsi = row.asi;
+      currentCsm = null;
+    }
+    if (row.csm !== currentCsm) {
+      options.push({ value: `csm|${row.csm}`, label: `\u00A0\u00A0↳ CSM: ${row.csm}` });
+      currentCsm = row.csm;
+    }
+    options.push({ value: `asm|${row.asm}`, label: `\u00A0\u00A0\u00A0\u00A0↳ ASM: ${row.asm}` });
+  });
+
+  return options;
+}
+
 export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters = {}) {
   let dashboardId = dashboardRegistry[0].id;
   let filters = maybeFilters;
@@ -484,7 +509,7 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
   }
 
   const dateWindow = resolveDateRange(filters);
-  const [circles, cities, clusters, societies, managers, roles, kpis, asis, csms, asms] =
+  const [circles, cities, clusters, societies, managers, roles, kpis, managerHierarchy] =
     await Promise.all([
       getDistinctValues("circle", filters),
       getDistinctValues("city", filters),
@@ -493,9 +518,7 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
       getDistinctValues("manager_name", filters),
       getDistinctValues("role", filters),
       getDistinctValues("kpi_name", filters),
-      getDistinctValues("asi", filters),
-      getDistinctValues("csm", filters),
-      getDistinctValues("asm", filters)
+      getHierarchyOptions()
     ]);
 
   return {
@@ -506,9 +529,7 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
     managers,
     roles,
     kpis,
-    asis,
-    csms,
-    asms,
+    managerHierarchy,
     periods: getPeriodOptions(),
     defaultDateRange: dateWindow
   };

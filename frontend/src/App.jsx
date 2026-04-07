@@ -17,9 +17,7 @@ const CASCADING_FILTER_FIELDS = [
   ["society", "societies"],
   ["manager", "managers"],
   ["role", "roles"],
-  ["asi", "asis"],
-  ["csm", "csms"],
-  ["asm", "asms"],
+  ["hierarchy", "managerHierarchy"],
   ["kpi", "kpis"],
 ];
 
@@ -30,6 +28,7 @@ const INITIAL_FILTERS = {
   society: "All",
   manager: "All",
   role: "All",
+  hierarchy: "All",
   asi: "All",
   csm: "All",
   asm: "All",
@@ -45,10 +44,7 @@ const PERFORMANCE_FILTER_FIELDS = [
   { key: "cluster", label: "Cluster", source: "clusters" },
   { key: "society", label: "Society", source: "societies" },
   { key: "manager", label: "Manager", source: "managers" },
-  { key: "role", label: "Role", source: "roles" },
-  { key: "asi", label: "ASI", source: "asis" },
-  { key: "csm", label: "CSM", source: "csms" },
-  { key: "asm", label: "ASM", source: "asms" },
+  { key: "hierarchy", label: "Hierarchy", source: "managerHierarchy" },
   { key: "kpi", label: "KPI", source: "kpis" },
   { key: "period", label: "Period", source: "periods" },
 ];
@@ -59,9 +55,7 @@ const COMPARE_FILTER_FIELDS = [
   { key: "cluster", label: "Cluster", source: "clusters" },
   { key: "society", label: "Society", source: "societies" },
   { key: "role", label: "Role", source: "roles" },
-  { key: "asi", label: "ASI", source: "asis" },
-  { key: "csm", label: "CSM", source: "csms" },
-  { key: "asm", label: "ASM", source: "asms" },
+  { key: "hierarchy", label: "Hierarchy", source: "managerHierarchy" },
   { key: "kpi", label: "KPI", source: "kpis" },
   { key: "period", label: "Period", source: "periods" },
 ];
@@ -197,6 +191,9 @@ export default function App() {
     filters.society,
     filters.manager,
     filters.role,
+    filters.asi,
+    filters.csm,
+    filters.asm,
     filters.kpi,
     filters.period,
     filters.startDate,
@@ -243,10 +240,32 @@ export default function App() {
         };
       }
 
-      return {
+      const nextFilters = {
         ...current,
         [field]: value,
       };
+
+      if (field === "hierarchy") {
+        if (value === "All") {
+          nextFilters.asi = "All";
+          nextFilters.csm = "All";
+          nextFilters.asm = "All";
+        } else {
+          const [level, name] = value.split("|");
+          if (level === "asi") {
+            nextFilters.asi = name;
+            nextFilters.csm = "All";
+            nextFilters.asm = "All";
+          } else if (level === "csm") {
+            nextFilters.csm = name;
+            nextFilters.asm = "All";
+          } else if (level === "asm") {
+            nextFilters.asm = name;
+          }
+        }
+      }
+
+      return nextFilters;
     });
   }
 
