@@ -16,6 +16,21 @@ function sumRows(rows, field) {
   return rows.reduce((total, row) => total + Number(row[field] || 0), 0);
 }
 
+function buildKpiTotals(rows, kpiName) {
+  const bucket = rows.filter((row) => row.kpi_name === kpiName);
+  const target = sumRows(bucket, "target");
+  const ftd = sumRows(bucket, "ftd");
+  const mtd = sumRows(bucket, "mtd");
+
+  return {
+    kpiName,
+    target,
+    ftd,
+    mtd,
+    achievementPct: calculatePercentage(mtd, target)
+  };
+}
+
 function sortByNumericValue(items, key) {
   return [...items].sort((left, right) => Number(right[key] || 0) - Number(left[key] || 0));
 }
@@ -109,6 +124,28 @@ function buildHomePassSeries(rows) {
       homePassed: sumRows(bucket, "home_passed"),
       customers: sumRows(bucket, "customer_base")
     }));
+}
+
+function buildKpiTrendSeries(rows, kpiNames) {
+  const grouped = groupBy(rows, (row) => formatDate(row.record_date));
+
+  return [...grouped.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([date, bucket]) => {
+      const row = {
+        date,
+        label: formatDateLabel(date)
+      };
+
+      kpiNames.forEach((kpiName) => {
+        row[kpiName.toLowerCase()] = sumRows(
+          bucket.filter((item) => item.kpi_name === kpiName),
+          "mtd"
+        );
+      });
+
+      return row;
+    });
 }
 
 function buildHomePassCoverage(rows, keyBuilder) {
@@ -282,6 +319,8 @@ export function buildHomePassPayload(activeDashboard, rows, dateWindow, filters)
   const societies = buildHomePassSocietyCoverage(rows);
   const hotspots = buildHomePassConversionHotspots(rows);
   const managers = buildHomePassManagerRows(rows);
+  const gad = buildKpiTotals(rows, "GAD");
+  const ftr = buildKpiTotals(rows, "FTR");
 
   return {
     meta: {
@@ -290,6 +329,10 @@ export function buildHomePassPayload(activeDashboard, rows, dateWindow, filters)
       dateRange: dateWindow
     },
     summary,
+    kpis: {
+      gad,
+      ftr
+    },
     highlight: buildHomePassHighlight(circles),
     insights: buildHomePassInsights({
       summary,
@@ -299,6 +342,7 @@ export function buildHomePassPayload(activeDashboard, rows, dateWindow, filters)
       hotspots
     }),
     totalSeries: buildHomePassSeries(rows),
+    kpiSeries: buildKpiTrendSeries(rows, ["GAD", "FTR"]),
     circles: circles.slice(0, 6),
     cities,
     hotspots,

@@ -359,6 +359,8 @@ function SalesOverview({ data, accent }) {
 function HomePassDashboard({ data, accent }) {
   const topCircle = data.circles?.[0];
   const topCity = data.hotspots?.[0] || data.cities?.[0];
+  const gad = data.kpis?.gad;
+  const ftr = data.kpis?.ftr;
   const summaryCards = [
     {
       label: "Home Passed",
@@ -369,6 +371,20 @@ function HomePassDashboard({ data, accent }) {
       label: "Customers",
       value: formatNumber(data.summary?.customers),
       detail: "Active customer base",
+    },
+    {
+      label: "GAD (MTD)",
+      value: gad && gad.mtd != null ? formatNumber(gad.mtd) : "-",
+      detail: gad && gad.target != null
+        ? `${formatPercent(gad.achievementPct)} of target`
+        : "No GAD data in this slice",
+    },
+    {
+      label: "FTR (MTD)",
+      value: ftr && ftr.mtd != null ? formatNumber(ftr.mtd) : "-",
+      detail: ftr && ftr.target != null
+        ? `${formatPercent(ftr.achievementPct)} of target`
+        : "No FTR data in this slice",
     },
     {
       label: "Connect Rate",
@@ -473,6 +489,46 @@ function HomePassDashboard({ data, accent }) {
 
       <article className="panel panel-span-5 panel-pad">
         <PanelHeader
+          kicker="City View"
+          title="Coverage by City"
+          copy="Top cities by footprint with demand and connect rate."
+        />
+        <DataTable
+          columns={cityColumns}
+          rows={data.cities}
+          rowKey={(row) => `${row.city}-${row.circle}`}
+          emptyMessage="No city coverage rows available."
+        />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="KPI Trend"
+          title="GAD Trend"
+          copy="GAD movement across the selected Home Pass slice."
+        />
+        <LineTrendChart
+          data={data.kpiSeries}
+          lines={[{ key: "gad", label: "GAD", color: "#8e7dff" }]}
+          height={320}
+        />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
+          kicker="KPI Trend"
+          title="FTR Trend"
+          copy="FTR movement across the selected Home Pass slice."
+        />
+        <LineTrendChart
+          data={data.kpiSeries}
+          lines={[{ key: "ftr", label: "FTR", color: "#ffbc73" }]}
+          height={320}
+        />
+      </article>
+
+      <article className="panel panel-span-6 panel-pad">
+        <PanelHeader
           kicker="Circle Rank"
           title="Coverage by Circle"
           copy="Circles ordered by footprint in the selected view."
@@ -490,20 +546,6 @@ function HomePassDashboard({ data, accent }) {
             </>
           )}
           emptyMessage="No home pass rows available."
-        />
-      </article>
-
-      <article className="panel panel-span-6 panel-pad">
-        <PanelHeader
-          kicker="City View"
-          title="Top Coverage Cities"
-          copy="A clean city table for scale, demand, and conversion."
-        />
-        <DataTable
-          columns={cityColumns}
-          rows={data.cities}
-          rowKey={(row) => `${row.city}-${row.circle}`}
-          emptyMessage="No city coverage rows available."
         />
       </article>
 
