@@ -12,9 +12,9 @@ function PanelHeader({ kicker, title, copy }) {
   return (
     <div className="panel-header">
       <div>
-        <p className="section-kicker">{kicker}</p>
+        {/* <p className="section-kicker">{kicker}</p> */}
         <h2 className="section-title">{title}</h2>
-        {copy && <p className="section-copy">{copy}</p>}
+        {/* {copy && <p className="section-copy">{copy}</p>} */}
       </div>
     </div>
   );
@@ -286,6 +286,15 @@ function CoverageCards({ societies }) {
 function SalesOverview({ data, accent }) {
   return (
     <section className="content-grid">
+      <article className="panel panel-span-12 panel-pad">
+        <PanelHeader
+          kicker="KPI Matrix"
+          title="Core KPI Cards"
+          copy="Each card carries the value, target, delta, and a compact trend line."
+        />
+        <KpiDeck cards={data.kpiCards} accent={accent} />
+      </article>
+
       <article className="panel panel-span-8 panel-pad">
         <PanelHeader
           kicker="Momentum"
@@ -310,15 +319,6 @@ function SalesOverview({ data, accent }) {
           copy="Fast insight blocks for daily decision making."
         />
         <InsightStack insights={data.insights} />
-      </article>
-
-      <article className="panel panel-span-12 panel-pad">
-        <PanelHeader
-          kicker="KPI Matrix"
-          title="Core KPI Cards"
-          copy="Each card carries the value, target, delta, and a compact trend line."
-        />
-        <KpiDeck cards={data.kpiCards} accent={accent} />
       </article>
 
       <article className="panel panel-span-5 panel-pad">
@@ -375,16 +375,18 @@ function HomePassDashboard({ data, accent }) {
     {
       label: "GAD (MTD)",
       value: gad && gad.mtd != null ? formatNumber(gad.mtd) : "-",
-      detail: gad && gad.target != null
-        ? `${formatPercent(gad.achievementPct)} of target`
-        : "No GAD data in this slice",
+      detail:
+        gad && gad.target != null
+          ? `${formatPercent(gad.achievementPct)} of target`
+          : "No GAD data in this slice",
     },
     {
       label: "FTR (MTD)",
       value: ftr && ftr.mtd != null ? formatNumber(ftr.mtd) : "-",
-      detail: ftr && ftr.target != null
-        ? `${formatPercent(ftr.achievementPct)} of target`
-        : "No FTR data in this slice",
+      detail:
+        ftr && ftr.target != null
+          ? `${formatPercent(ftr.achievementPct)} of target`
+          : "No FTR data in this slice",
     },
     {
       label: "Connect Rate",

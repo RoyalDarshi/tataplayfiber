@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   fetchDashboardData,
   fetchDashboards,
-  fetchFilters
+  fetchFilters,
 } from "./api/client.js";
 import FilterBar from "./components/FilterBar.jsx";
 import Sidebar from "./components/layout/Sidebar.jsx";
@@ -17,7 +17,7 @@ const CASCADING_FILTER_FIELDS = [
   ["society", "societies"],
   ["manager", "managers"],
   ["role", "roles"],
-  ["kpi", "kpis"]
+  ["kpi", "kpis"],
 ];
 
 const INITIAL_FILTERS = {
@@ -30,7 +30,7 @@ const INITIAL_FILTERS = {
   kpi: "All",
   period: "last-30-days",
   startDate: "",
-  endDate: ""
+  endDate: "",
 };
 
 const PERFORMANCE_FILTER_FIELDS = [
@@ -41,7 +41,7 @@ const PERFORMANCE_FILTER_FIELDS = [
   { key: "manager", label: "Manager", source: "managers" },
   { key: "role", label: "Role", source: "roles" },
   { key: "kpi", label: "KPI", source: "kpis" },
-  { key: "period", label: "Period", source: "periods" }
+  { key: "period", label: "Period", source: "periods" },
 ];
 
 const COMPARE_FILTER_FIELDS = [
@@ -51,7 +51,7 @@ const COMPARE_FILTER_FIELDS = [
   { key: "society", label: "Society", source: "societies" },
   { key: "role", label: "Role", source: "roles" },
   { key: "kpi", label: "KPI", source: "kpis" },
-  { key: "period", label: "Period", source: "periods" }
+  { key: "period", label: "Period", source: "periods" },
 ];
 
 const ATTENDANCE_FILTER_FIELDS = [
@@ -62,7 +62,7 @@ const ATTENDANCE_FILTER_FIELDS = [
   { key: "manager", label: "Manager", source: "managers" },
   { key: "role", label: "Role", source: "roles" },
   { key: "kpi", label: "Status", source: "kpis" },
-  { key: "period", label: "Period", source: "periods" }
+  { key: "period", label: "Period", source: "periods" },
 ];
 
 function countActiveFilters(filters) {
@@ -121,7 +121,7 @@ export default function App() {
 
         setDashboards(dashboardResponse.dashboards || []);
         setActiveDashboard(
-          dashboardResponse.dashboards?.[0]?.id || "sales-overview"
+          dashboardResponse.dashboards?.[0]?.id || "sales-overview",
         );
       } catch (requestError) {
         if (!cancelled) {
@@ -154,7 +154,7 @@ export default function App() {
         setError("");
         const [payload, nextFilterOptions] = await Promise.all([
           fetchDashboardData(activeDashboard, filters),
-          fetchFilters(activeDashboard, filters)
+          fetchFilters(activeDashboard, filters),
         ]);
 
         if (!cancelled) {
@@ -188,7 +188,7 @@ export default function App() {
     filters.kpi,
     filters.period,
     filters.startDate,
-    filters.endDate
+    filters.endDate,
   ]);
 
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function App() {
     }
 
     setFilters((current) =>
-      current.manager === "All" ? current : { ...current, manager: "All" }
+      current.manager === "All" ? current : { ...current, manager: "All" },
     );
   }, [activeDashboard]);
 
@@ -215,7 +215,7 @@ export default function App() {
         return {
           ...current,
           period: value,
-          ...(value === "custom" ? {} : { startDate: "", endDate: "" })
+          ...(value === "custom" ? {} : { startDate: "", endDate: "" }),
         };
       }
 
@@ -223,13 +223,13 @@ export default function App() {
         return {
           ...current,
           [field]: value,
-          period: "custom"
+          period: "custom",
         };
       }
 
       return {
         ...current,
-        [field]: value
+        [field]: value,
       };
     });
   }
@@ -237,7 +237,7 @@ export default function App() {
   function handleResetFilters() {
     setFilters({
       ...INITIAL_FILTERS,
-      period: filterOptions?.periods?.[1]?.value || "last-30-days"
+      period: filterOptions?.periods?.[1]?.value || "last-30-days",
     });
   }
 
@@ -258,7 +258,7 @@ export default function App() {
   const themeStyle = {
     "--accent": activeMeta?.accent || "#5fe0b0",
     "--accent-soft": activeMeta?.accentSoft || "rgba(95, 224, 176, 0.22)",
-    "--surface-glow": activeMeta?.glow || "rgba(95, 224, 176, 0.28)"
+    "--surface-glow": activeMeta?.glow || "rgba(95, 224, 176, 0.28)",
   };
   const activeFilterCount = countActiveFilters(filters);
   const filterFields =
@@ -278,70 +278,41 @@ export default function App() {
       />
 
       <main className="content">
-        <section className="hero-panel panel">
-          <div>
-            <p className="section-kicker">Multi Dashboard Suite</p>
-            <h2 className="hero-title">
+        <section
+          className="panel filter-panel"
+          style={{ padding: "14px 20px" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "14px",
+            }}
+          >
+            <h2
+              className="hero-title"
+              style={{ margin: 0, textAlign: "center", fontSize: "2.5rem" }}
+            >
               {activeMeta?.title || "Fiber Dashboard"}
             </h2>
-            <p className="hero-copy">
-              {activeMeta?.description ||
-                "Modern, responsive KPI and charting dashboard for fiber performance."}
-            </p>
-
-            <div className="chip-row">
-              <span className="chip">
-                {formatDateRange(
-                  dashboardData?.meta?.dateRange?.startDate,
-                  dashboardData?.meta?.dateRange?.endDate
-                )}
-              </span>
-              <span className="chip">
-                {formatNumber(dashboardData?.meta?.totalRecords)}{" "}
-                {dashboardData?.meta?.recordsLabel || "rows"}
-              </span>
-              <span className="chip">{activeFilterCount} active filters</span>
-              {loadingData && <span className="chip chip--live">Refreshing</span>}
-            </div>
           </div>
-
-          <aside className="highlight-card">
-            <span className="highlight-kicker">
-              {dashboardData?.highlight?.eyebrow || "Highlight"}
-            </span>
-            <strong className="highlight-title">
-              {dashboardData?.highlight?.title || "Ready"}
-            </strong>
-            <div className="highlight-value">
-              {dashboardData?.highlight?.valueDisplay ||
-                formatNumber(dashboardData?.highlight?.value)}
-            </div>
-            <p className="highlight-copy">
-              {dashboardData?.highlight?.secondary ||
-                "Seed the database to view the latest aggregated performance."}
-            </p>
-            <span className="highlight-chip">
-              {dashboardData?.highlight?.deltaLabel || "Modern responsive layout"}
-            </span>
-          </aside>
+          <FilterBar
+            filters={filters}
+            options={filterOptions}
+            fields={filterFields}
+            onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
+            loading={loadingData}
+          />
         </section>
-
-        <FilterBar
-          filters={filters}
-          options={filterOptions}
-          fields={filterFields}
-          onFilterChange={handleFilterChange}
-          onResetFilters={handleResetFilters}
-          loading={loadingData}
-        />
 
         {error ? (
           <section className="panel error-panel">{error}</section>
         ) : dashboardData ? (
           <>
-            {showSharedSummary && (
+            {/* {showSharedSummary && (
               <SummaryStats summary={dashboardData.summary} maxCards={4} />
-            )}
+            )} */}
             <DashboardContent
               dashboardId={activeDashboard}
               data={dashboardData}
@@ -349,7 +320,9 @@ export default function App() {
             />
           </>
         ) : (
-          <section className="panel loading-panel">Loading dashboard data...</section>
+          <section className="panel loading-panel">
+            Loading dashboard data...
+          </section>
         )}
       </main>
     </div>

@@ -6,7 +6,7 @@ const SELECT_FIELDS = [
   { key: "manager", label: "Manager", source: "managers" },
   { key: "role", label: "Role", source: "roles" },
   { key: "kpi", label: "KPI", source: "kpis" },
-  { key: "period", label: "Period", source: "periods" }
+  { key: "period", label: "Period", source: "periods" },
 ];
 
 export default function FilterBar({
@@ -15,74 +15,89 @@ export default function FilterBar({
   fields = SELECT_FIELDS,
   onFilterChange,
   onResetFilters,
-  loading
+  loading,
 }) {
   return (
-    <section className="panel filter-panel">
-      <div className="panel-header" style={{ marginBottom: "12px", alignItems: "center" }}>
-        <h2 className="section-title" style={{ margin: 0, fontSize: "1.1rem" }}>Interactive Filters</h2>
+    <div className="filter-grid">
+      {fields.map((field) => (
+        <label key={field.key} className="form-field">
+          <span>{field.label}</span>
+          <select
+            className="control"
+            value={filters[field.key] || ""}
+            onChange={(event) => onFilterChange(field.key, event.target.value)}
+            disabled={loading}
+          >
+            {field.key !== "period" && <option value="All">All</option>}
+            {(options?.[field.source] || []).map((option) => {
+              const value = typeof option === "string" ? option : option.value;
+              const label = typeof option === "string" ? option : option.label;
+
+              return (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+      ))}
+
+      <label className="form-field">
+        <span>Start Date</span>
+        <input
+          type="date"
+          className="control"
+          value={filters.startDate}
+          onChange={(event) => onFilterChange("startDate", event.target.value)}
+          disabled={loading}
+        />
+      </label>
+
+      <label className="form-field">
+        <span>End Date</span>
+        <input
+          type="date"
+          className="control"
+          value={filters.endDate}
+          onChange={(event) => onFilterChange("endDate", event.target.value)}
+          disabled={loading}
+        />
+      </label>
+
+      <div className="form-field" style={{ justifyContent: "flex-end" }}>
+        <span>&nbsp;</span>
         <button
           type="button"
           className="button button--secondary"
           onClick={onResetFilters}
           disabled={loading}
+          style={{
+            width: "35px",
+            height: "35px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "0",
+            borderRadius: "12px",
+          }}
+          title="Reset Filters"
         >
-          Reset filters
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
         </button>
       </div>
-
-      <div className="filter-grid">
-        {fields.map((field) => (
-          <label key={field.key} className="form-field">
-            <span>{field.label}</span>
-            <select
-              className="control"
-              value={filters[field.key] || ""}
-              onChange={(event) =>
-                onFilterChange(field.key, event.target.value)
-              }
-              disabled={loading}
-            >
-              {field.key !== "period" && <option value="All">All</option>}
-              {(options?.[field.source] || []).map((option) => {
-                const value = typeof option === "string" ? option : option.value;
-                const label = typeof option === "string" ? option : option.label;
-
-                return (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
-          </label>
-        ))}
-
-        <label className="form-field">
-          <span>Start Date</span>
-          <input
-            type="date"
-            className="control"
-            value={filters.startDate}
-            onChange={(event) =>
-              onFilterChange("startDate", event.target.value)
-            }
-            disabled={loading}
-          />
-        </label>
-
-        <label className="form-field">
-          <span>End Date</span>
-          <input
-            type="date"
-            className="control"
-            value={filters.endDate}
-            onChange={(event) => onFilterChange("endDate", event.target.value)}
-            disabled={loading}
-          />
-        </label>
-      </div>
-    </section>
+    </div>
   );
 }
-
