@@ -527,7 +527,7 @@ function HomePassDashboard({ data, accent }) {
 function buildLeaderboardRows(rows, key) {
   return [...(rows || [])]
     .sort((left, right) => Number(right[key] || 0) - Number(left[key] || 0))
-    .slice(0, 8)
+    .slice(0, 20)
     .map((row) => ({
       ...row,
       label: row.name,
@@ -539,34 +539,34 @@ function LeaderboardDashboard({ data }) {
   const mtdRows = buildLeaderboardRows(managers, "mtd");
   const achievementRows = buildLeaderboardRows(managers, "achievementPct");
   const ftdRows = buildLeaderboardRows(managers, "ftd");
-  const targetRows = buildLeaderboardRows(managers, "target");
+  const homePassedRows = buildLeaderboardRows(managers, "homePassed");
   const topMtd = mtdRows[0];
   const topAchievement = achievementRows[0];
   const topFtd = ftdRows[0];
-  const topTarget = targetRows[0];
+  const topHomePassed = homePassedRows[0];
   const summaryCards = [
     {
-      label: "MTD Leader",
+      label: "GAD Leader",
       value: topMtd?.name || "-",
-      detail: topMtd ? `${formatNumber(topMtd.mtd)} MTD` : "No manager data",
+      detail: topMtd ? `${formatNumber(topMtd.mtd)} GAD` : "No manager data",
     },
     {
-      label: "Achievement Leader",
+      label: "ACH Leader",
       value: topAchievement?.name || "-",
       detail: topAchievement
         ? `${formatPercent(topAchievement.achievementPct)} achieved`
         : "No manager data",
     },
     {
-      label: "FTD Leader",
+      label: "PEN Leader",
       value: topFtd?.name || "-",
-      detail: topFtd ? `${formatNumber(topFtd.ftd)} FTD` : "No manager data",
+      detail: topFtd ? `${formatNumber(topFtd.ftd)} PEN` : "No manager data",
     },
     {
-      label: "Target Leader",
-      value: topTarget?.name || "-",
-      detail: topTarget
-        ? `${formatNumber(topTarget.target)} target`
+      label: "HP Leader",
+      value: topHomePassed?.name || "-",
+      detail: topHomePassed
+        ? `${formatNumber(topHomePassed.homePassed)} HP`
         : "No manager data",
     },
   ];
@@ -585,8 +585,8 @@ function LeaderboardDashboard({ data }) {
       <article className="panel panel-span-3 panel-pad">
         <PanelHeader
           kicker="Rank 1"
-          title="MTD Top 8"
-          copy="Managers with the highest current month-to-date output."
+          title="GAD T20"
+          copy="Managers with the highest gross adds/devices."
         />
         <MetricBars
           items={mtdRows}
@@ -598,15 +598,15 @@ function LeaderboardDashboard({ data }) {
               <span>{formatPercent(item.achievementPct)}</span>
             </>
           )}
-          emptyMessage="No MTD leaderboard rows available."
+          emptyMessage="No GAD leaderboard rows available."
         />
       </article>
 
       <article className="panel panel-span-3 panel-pad">
         <PanelHeader
           kicker="Rank 2"
-          title="Achievement Top 8"
-          copy="Managers converting the most target into output."
+          title="ACH T20"
+          copy="Managers with the highest achievement percentage."
         />
         <MetricBars
           items={achievementRows}
@@ -626,8 +626,8 @@ function LeaderboardDashboard({ data }) {
       <article className="panel panel-span-3 panel-pad">
         <PanelHeader
           kicker="Rank 3"
-          title="FTD Top 8"
-          copy="The strongest managers for today movement."
+          title="PEN T20"
+          copy="Managers with the highest today's production."
         />
         <MetricBars
           items={ftdRows}
@@ -639,19 +639,19 @@ function LeaderboardDashboard({ data }) {
               <span>{formatPercent(item.achievementPct)}</span>
             </>
           )}
-          emptyMessage="No FTD leaderboard rows available."
+          emptyMessage="No PEN leaderboard rows available."
         />
       </article>
 
       <article className="panel panel-span-3 panel-pad">
         <PanelHeader
           kicker="Rank 4"
-          title="Target Top 8"
-          copy="Managers carrying the largest target in the selected slice."
+          title="HP T20"
+          copy="Managers with the highest home passed count."
         />
         <MetricBars
-          items={targetRows}
-          valueKey="target"
+          items={homePassedRows}
+          valueKey="homePassed"
           renderMeta={(item) => `${item.role} | ${item.city}`}
           renderFooter={(item) => (
             <>
@@ -659,7 +659,7 @@ function LeaderboardDashboard({ data }) {
               <span>{formatPercent(item.achievementPct)}</span>
             </>
           )}
-          emptyMessage="No target leaderboard rows available."
+          emptyMessage="No HP leaderboard rows available."
         />
       </article>
     </section>
