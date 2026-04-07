@@ -38,58 +38,77 @@ export default function KpiDeck({ cards, accent }) {
 
   return (
     <div className="kpi-grid">
-      {cards.map((card, index) => (
-        <article
-          key={card.kpiName}
-          className="kpi-card"
-          style={{
-            "--card-accent": index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length],
-            "--card-accent-soft": hexToRgba(
-              index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length],
-              0.18
-            ),
-            "--card-accent-ring": hexToRgba(
-              index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length],
-              0.28
-            )
-          }}
-        >
-          <div className="kpi-top">
-            <div>
-              <span className="kpi-name">{card.kpiName}</span>
-              <strong className="kpi-value">{formatNumber(card.mtd)}</strong>
+      {cards.map((card, index) => {
+        const cardAccent = index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length];
+        const cardSoft = hexToRgba(cardAccent, 0.18);
+        const cardRing = hexToRgba(cardAccent, 0.28);
+        const lmtd = card.lmtd || card.target; // Fallback to target if lmtd isn't explicitly passed
+        
+        return (
+          <article
+            key={card.kpiName}
+            className="kpi-card"
+            style={{
+              "--card-accent": cardAccent,
+              "--card-accent-soft": cardSoft,
+              "--card-accent-ring": cardRing,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "20px"
+            }}
+          >
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px", minWidth: 0, paddingRight: "16px" }}>
+              <div className="kpi-top">
+                <div>
+                  <span className="kpi-name">{card.kpiName}</span>
+                  <strong className="kpi-value">{formatNumber(card.mtd)}</strong>
+                </div>
+                <span
+                  className={`delta-chip ${
+                    card.deltaPct >= 0 ? "is-positive" : "is-negative"
+                  }`}
+                  style={{ alignSelf: "flex-start" }}
+                >
+                  {card.deltaPct >= 0 ? "+" : ""}
+                  {formatPercent(card.deltaPct)}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
+                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: 1 }}>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", fontWeight: "600", marginBottom: "2px" }}>MTD</div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--text-strong)" }}>{formatNumber(card.mtd)}</div>
+                </div>
+                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: 1 }}>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", fontWeight: "600", marginBottom: "2px" }}>LMTD</div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--text-strong)" }}>{formatNumber(lmtd)}</div>
+                </div>
+                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: 1 }}>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", fontWeight: "600", marginBottom: "2px" }}>FTD</div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--text-strong)" }}>{formatNumber(card.ftd)}</div>
+                </div>
+              </div>
             </div>
-            <span
-              className={`delta-chip ${
-                card.deltaPct >= 0 ? "is-positive" : "is-negative"
-              }`}
-            >
-              {card.deltaPct >= 0 ? "+" : ""}
-              {formatPercent(card.deltaPct)}
-            </span>
-          </div>
 
-          <div className="kpi-meta">
-            <span>Target {formatNumber(card.target)}</span>
-            <span>FTD {formatNumber(card.ftd)}</span>
-            <span>{formatPercent(card.achievementPct)} achieved</span>
-          </div>
-
-          <LineTrendChart
-            data={card.series}
-            lines={[
-              {
-                key: "value",
-                label: card.kpiName,
-                color: index === 0 ? accent : CARD_COLORS[index % CARD_COLORS.length]
-              }
-            ]}
-            height={120}
-            compact
-            showArea={false}
-          />
-        </article>
-      ))}
+            <div style={{ width: "45%", height: "130px", minWidth: 0, position: "relative" }}>
+              <LineTrendChart
+                data={card.series}
+                lines={[
+                  {
+                    key: "value",
+                    label: card.kpiName,
+                    color: cardAccent
+                  }
+                ]}
+                height={130}
+                compact
+                showArea={true}
+              />
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
