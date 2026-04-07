@@ -221,12 +221,18 @@ function buildManagerPerformance(rows) {
           ftd: sumRows(bucket, "ftd"),
           mtd,
           lmtd: sumRows(bucket, "lmtd"),
+          customers: sumRows(bucket, "customer_base"),
+          homePassed: sumRows(bucket, "home_passed"),
           achievementPct: calculatePercentage(mtd, target),
+          connectRatePct: calculatePercentage(
+            sumRows(bucket, "customer_base"),
+            sumRows(bucket, "home_passed")
+          ),
           primaryKpi: topKpi
         };
       }
     )
-  ).slice(0, 10);
+  );
 }
 
 function buildManagerComparisonCandidates(rows) {

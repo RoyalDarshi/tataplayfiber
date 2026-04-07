@@ -539,11 +539,11 @@ function LeaderboardDashboard({ data }) {
   const mtdRows = buildLeaderboardRows(managers, "mtd");
   const achievementRows = buildLeaderboardRows(managers, "achievementPct");
   const ftdRows = buildLeaderboardRows(managers, "ftd");
-  const homePassedRows = buildLeaderboardRows(managers, "homePassed");
+  const penetrationRows = buildLeaderboardRows(managers, "connectRatePct");
   const topMtd = mtdRows[0];
   const topAchievement = achievementRows[0];
   const topFtd = ftdRows[0];
-  const topHomePassed = homePassedRows[0];
+  const topHomePassed = penetrationRows[0];
   const summaryCards = [
     {
       label: "GAD Leader",
@@ -566,7 +566,7 @@ function LeaderboardDashboard({ data }) {
       label: "HP Leader",
       value: topHomePassed?.name || "-",
       detail: topHomePassed
-        ? `${formatNumber(topHomePassed.homePassed)} HP`
+        ? `${formatPercent(topHomePassed.connectRatePct)} HP`
         : "No manager data",
     },
   ];
@@ -650,13 +650,14 @@ function LeaderboardDashboard({ data }) {
           copy="Managers with the highest home passed count."
         />
         <MetricBars
-          items={homePassedRows}
-          valueKey="homePassed"
+          items={penetrationRows}
+          valueKey="connectRatePct"
+          valueFormatter={formatPercent}
           renderMeta={(item) => `${item.role} | ${item.city}`}
           renderFooter={(item) => (
             <>
-              <span>MTD {formatNumber(item.mtd)}</span>
-              <span>{formatPercent(item.achievementPct)}</span>
+              <span>Customers {formatNumber(item.customers)}</span>
+              <span>HP {formatNumber(item.homePassed)}</span>
             </>
           )}
           emptyMessage="No HP leaderboard rows available."
