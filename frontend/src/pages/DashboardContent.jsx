@@ -901,72 +901,76 @@ function CompareDashboard({ data, accent }) {
           title="Head-To-Head Comparison"
           copy="Compare any two people side by side. They can be the same or different, and each side can use a different time period."
         />
-        <div className="compare-selector-grid">
-          <label className="form-field">
-            <span>Person A</span>
-            <select
-              className="control"
-              value={leftCandidate?.id || ""}
-              onChange={(event) => handleLeftChange(event.target.value)}
-            >
-              {candidates.map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.name} | {candidate.role} | {candidate.city}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="compare-pair-row">
+          <div className="compare-pair">
+            <label className="form-field">
+              <span>Person A</span>
+              <select
+                className="control"
+                value={leftCandidate?.id || ""}
+                onChange={(event) => handleLeftChange(event.target.value)}
+              >
+                {candidates.map((candidate) => (
+                  <option key={candidate.id} value={candidate.id}>
+                    {candidate.name} | {candidate.role} | {candidate.city}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          <label className="form-field">
-            <span>Person B</span>
-            <select
-              className="control"
-              value={rightCandidate?.id || ""}
-              onChange={(event) => handleRightChange(event.target.value)}
-            >
-              {candidates.map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.name} | {candidate.role} | {candidate.city}
-                </option>
-              ))}
-            </select>
-          </label>
+            <label className="form-field">
+              <span>Period A</span>
+              <select
+                className="control"
+                value={leftPeriod}
+                onChange={(event) => setLeftPeriod(event.target.value)}
+              >
+                {(periods.length
+                  ? periods
+                  : [{ value: defaultPeriod, label: "Period" }]
+                ).map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
-          <label className="form-field">
-            <span>Period A</span>
-            <select
-              className="control"
-              value={leftPeriod}
-              onChange={(event) => setLeftPeriod(event.target.value)}
-            >
-              {(periods.length
-                ? periods
-                : [{ value: defaultPeriod, label: "Period" }]
-              ).map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="compare-pair">
+            <label className="form-field">
+              <span>Person B</span>
+              <select
+                className="control"
+                value={rightCandidate?.id || ""}
+                onChange={(event) => handleRightChange(event.target.value)}
+              >
+                {candidates.map((candidate) => (
+                  <option key={candidate.id} value={candidate.id}>
+                    {candidate.name} | {candidate.role} | {candidate.city}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          <label className="form-field">
-            <span>Period B</span>
-            <select
-              className="control"
-              value={rightPeriod}
-              onChange={(event) => setRightPeriod(event.target.value)}
-            >
-              {(periods.length
-                ? periods
-                : [{ value: defaultPeriod, label: "Period" }]
-              ).map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
+            <label className="form-field">
+              <span>Period B</span>
+              <select
+                className="control"
+                value={rightPeriod}
+                onChange={(event) => setRightPeriod(event.target.value)}
+              >
+                {(periods.length
+                  ? periods
+                  : [{ value: defaultPeriod, label: "Period" }]
+                ).map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
         {loadingSides ? (
           <div className="empty-state" style={{ paddingTop: 12 }}>

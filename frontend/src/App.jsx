@@ -87,9 +87,12 @@ function normalizeFilters(currentFilters, options) {
 
   CASCADING_FILTER_FIELDS.forEach(([filterKey, sourceKey]) => {
     const currentValue = nextFilters[filterKey];
+    const sourceValues = (options?.[sourceKey] || []).map((item) =>
+      typeof item === "string" ? item : item?.value,
+    );
     if (
       currentValue !== "All" &&
-      !(options?.[sourceKey] || []).includes(currentValue)
+      !sourceValues.includes(currentValue)
     ) {
       if (!hasChanges) {
         nextFilters = { ...nextFilters };

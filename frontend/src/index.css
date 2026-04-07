@@ -792,6 +792,33 @@ button {
   gap: 16px;
 }
 
+.compare-pair-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+.compare-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px dashed rgba(115, 145, 173, 0.28);
+  background: #fbfdff;
+}
+
+@media (max-width: 860px) {
+  .compare-pair-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .compare-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
 .compare-card {
   border-radius: 16px;
   border: 1px solid var(--panel-border);
