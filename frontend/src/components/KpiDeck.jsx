@@ -58,40 +58,39 @@ export default function KpiDeck({ cards, accent }) {
               padding: "20px"
             }}
           >
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px", minWidth: 0, paddingRight: "16px" }}>
-              <div className="kpi-top">
-                <div>
-                  <span className="kpi-name">{card.kpiName}</span>
-                  <strong className="kpi-value">{formatNumber(card.mtd)}</strong>
+            <div style={{ flex: "0 0 auto", display: "flex", flexDirection: "column", gap: "16px", paddingRight: "16px" }}>
+              <div className="kpi-top" style={{ flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
+                <span className="kpi-name">{card.kpiName}</span>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+                  <strong className="kpi-value" style={{ margin: 0 }}>{formatNumber(card.mtd)}</strong>
+                  <span
+                    className={`delta-chip ${
+                      card.deltaPct >= 0 ? "is-positive" : "is-negative"
+                    }`}
+                  >
+                    {card.deltaPct >= 0 ? "+" : ""}
+                    {formatPercent(card.deltaPct)}
+                  </span>
                 </div>
-                <span
-                  className={`delta-chip ${
-                    card.deltaPct >= 0 ? "is-positive" : "is-negative"
-                  }`}
-                  style={{ alignSelf: "flex-start" }}
-                >
-                  {card.deltaPct >= 0 ? "+" : ""}
-                  {formatPercent(card.deltaPct)}
-                </span>
               </div>
 
               <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
-                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: 1 }}>
+                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: "0 0 auto" }}>
                   <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", fontWeight: "600", marginBottom: "2px" }}>MTD</div>
                   <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--text-strong)" }}>{formatNumber(card.mtd)}</div>
                 </div>
-                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: 1 }}>
+                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: "0 0 auto" }}>
                   <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", fontWeight: "600", marginBottom: "2px" }}>LMTD</div>
                   <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--text-strong)" }}>{formatNumber(lmtd)}</div>
                 </div>
-                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: 1 }}>
+                <div style={{ background: "rgba(255, 255, 255, 0.7)", padding: "8px 12px", border: `1px solid ${cardRing}`, borderRadius: "10px", flex: "0 0 auto" }}>
                   <div style={{ fontSize: "0.7rem", color: "var(--text-soft)", fontWeight: "600", marginBottom: "2px" }}>FTD</div>
                   <div style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--text-strong)" }}>{formatNumber(card.ftd)}</div>
                 </div>
               </div>
             </div>
 
-            <div style={{ width: "45%", height: "130px", minWidth: 0, position: "relative" }}>
+            <div style={{ flex: 1, height: "100%", minHeight: "150px", minWidth: 0, position: "relative", alignSelf: "stretch" }}>
               <LineTrendChart
                 data={card.series}
                 lines={[
@@ -101,8 +100,7 @@ export default function KpiDeck({ cards, accent }) {
                     color: cardAccent
                   }
                 ]}
-                height={130}
-                compact
+                height={150}
                 showArea={true}
               />
             </div>

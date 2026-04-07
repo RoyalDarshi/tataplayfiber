@@ -284,6 +284,39 @@ function CoverageCards({ societies }) {
 }
 
 function SalesOverview({ data, accent }) {
+  const orderedKpiCards = (() => {
+    if (!data?.kpiCards) return [];
+    
+    const cardMap = {};
+    const others = [];
+    
+    data.kpiCards.forEach((card) => {
+      const clonedCard = { ...card };
+      const lowerName = clonedCard.kpiName.toLowerCase();
+      
+      if (lowerName.includes("retail")) {
+        clonedCard.kpiName = "Penetration";
+        cardMap["penetration"] = clonedCard;
+      } else {
+        cardMap[lowerName] = clonedCard;
+      }
+    });
+
+    const ordered = [];
+    ["gad", "act society", "ftr", "penetration"].forEach((key) => {
+      if (cardMap[key]) ordered.push(cardMap[key]);
+    });
+
+    data.kpiCards.forEach((card) => {
+      const lowerName = card.kpiName.toLowerCase();
+      if (!["gad", "act society", "ftr", "retail", "retails outer", "penetration"].some(k => lowerName.includes(k))) {
+        ordered.push(card);
+      }
+    });
+
+    return ordered;
+  })();
+
   return (
     <section className="content-grid">
       <article className="panel panel-span-12 panel-pad">
@@ -292,7 +325,7 @@ function SalesOverview({ data, accent }) {
           title="Core KPI Cards"
           copy="Each card carries the value, target, delta, and a compact trend line."
         />
-        <KpiDeck cards={data.kpiCards} accent={accent} />
+        <KpiDeck cards={orderedKpiCards} accent={accent} />
       </article>
 
       <article className="panel panel-span-8 panel-pad">
