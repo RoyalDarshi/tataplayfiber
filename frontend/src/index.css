@@ -808,6 +808,16 @@ button {
   background: #fbfdff;
 }
 
+.compare-pair:has(input[type="date"]) {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 980px) {
+  .compare-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 860px) {
   .compare-pair-row {
     grid-template-columns: 1fr;

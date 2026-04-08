@@ -57,7 +57,6 @@ const COMPARE_FILTER_FIELDS = [
   { key: "role", label: "Role", source: "roles" },
   { key: "hierarchy", label: "Hierarchy", source: "managerHierarchy" },
   { key: "kpi", label: "KPI", source: "kpis" },
-  { key: "period", label: "Period", source: "periods" },
 ];
 
 const ATTENDANCE_FILTER_FIELDS = [

@@ -20,6 +20,8 @@ export default function FilterBar({
   onResetFilters,
   loading,
 }) {
+  const showDateRangeControls = fields.some((field) => field.key === "period");
+
   return (
     <div className="filter-grid">
       {fields.map((field) => (
@@ -55,27 +57,31 @@ export default function FilterBar({
         </label>
       ))}
 
-      <label className="form-field">
-        <span>Start Date</span>
-        <input
-          type="date"
-          className="control"
-          value={filters.startDate}
-          onChange={(event) => onFilterChange("startDate", event.target.value)}
-          disabled={loading}
-        />
-      </label>
+      {showDateRangeControls ? (
+        <>
+          <label className="form-field">
+            <span>Start Date</span>
+            <input
+              type="date"
+              className="control"
+              value={filters.startDate}
+              onChange={(event) => onFilterChange("startDate", event.target.value)}
+              disabled={loading}
+            />
+          </label>
 
-      <label className="form-field">
-        <span>End Date</span>
-        <input
-          type="date"
-          className="control"
-          value={filters.endDate}
-          onChange={(event) => onFilterChange("endDate", event.target.value)}
-          disabled={loading}
-        />
-      </label>
+          <label className="form-field">
+            <span>End Date</span>
+            <input
+              type="date"
+              className="control"
+              value={filters.endDate}
+              onChange={(event) => onFilterChange("endDate", event.target.value)}
+              disabled={loading}
+            />
+          </label>
+        </>
+      ) : null}
     </div>
   );
 }

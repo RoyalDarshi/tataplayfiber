@@ -756,6 +756,10 @@ function CompareDashboard({ data, accent }) {
     "last-30-days";
   const [leftPeriod, setLeftPeriod] = useState(defaultPeriod);
   const [rightPeriod, setRightPeriod] = useState(defaultPeriod);
+  const [leftStartDate, setLeftStartDate] = useState("");
+  const [leftEndDate, setLeftEndDate] = useState("");
+  const [rightStartDate, setRightStartDate] = useState("");
+  const [rightEndDate, setRightEndDate] = useState("");
 
   const baseFilters = data?.filtersApplied || {};
   const [leftPayload, setLeftPayload] = useState(null);
@@ -793,14 +797,14 @@ function CompareDashboard({ data, accent }) {
           fetchDashboardData("compare-dashboard", {
             ...baseFilters,
             period: leftPeriod,
-            startDate: "",
-            endDate: "",
+            startDate: leftPeriod === "custom" ? leftStartDate : "",
+            endDate: leftPeriod === "custom" ? leftEndDate : "",
           }),
           fetchDashboardData("compare-dashboard", {
             ...baseFilters,
             period: rightPeriod,
-            startDate: "",
-            endDate: "",
+            startDate: rightPeriod === "custom" ? rightStartDate : "",
+            endDate: rightPeriod === "custom" ? rightEndDate : "",
           }),
         ]);
 
@@ -818,7 +822,31 @@ function CompareDashboard({ data, accent }) {
     return () => {
       cancelled = true;
     };
-  }, [baseFilters, leftPeriod, rightPeriod, leftId, rightId]);
+  }, [
+    baseFilters,
+    leftPeriod,
+    rightPeriod,
+    leftStartDate,
+    leftEndDate,
+    rightStartDate,
+    rightEndDate,
+    leftId,
+    rightId,
+  ]);
+
+  useEffect(() => {
+    if (leftPeriod !== "custom") {
+      setLeftStartDate("");
+      setLeftEndDate("");
+    }
+  }, [leftPeriod]);
+
+  useEffect(() => {
+    if (rightPeriod !== "custom") {
+      setRightStartDate("");
+      setRightEndDate("");
+    }
+  }, [rightPeriod]);
 
   const leftCandidates = leftPayload?.compareCandidates || candidates;
   const rightCandidates = rightPayload?.compareCandidates || candidates;
@@ -935,6 +963,29 @@ function CompareDashboard({ data, accent }) {
                 ))}
               </select>
             </label>
+
+            {leftPeriod === "custom" ? (
+              <>
+                <label className="form-field">
+                  <span>Start Date</span>
+                  <input
+                    type="date"
+                    className="control"
+                    value={leftStartDate}
+                    onChange={(event) => setLeftStartDate(event.target.value)}
+                  />
+                </label>
+                <label className="form-field">
+                  <span>End Date</span>
+                  <input
+                    type="date"
+                    className="control"
+                    value={leftEndDate}
+                    onChange={(event) => setLeftEndDate(event.target.value)}
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
 
           <div className="compare-pair">
@@ -970,6 +1021,29 @@ function CompareDashboard({ data, accent }) {
                 ))}
               </select>
             </label>
+
+            {rightPeriod === "custom" ? (
+              <>
+                <label className="form-field">
+                  <span>Start Date</span>
+                  <input
+                    type="date"
+                    className="control"
+                    value={rightStartDate}
+                    onChange={(event) => setRightStartDate(event.target.value)}
+                  />
+                </label>
+                <label className="form-field">
+                  <span>End Date</span>
+                  <input
+                    type="date"
+                    className="control"
+                    value={rightEndDate}
+                    onChange={(event) => setRightEndDate(event.target.value)}
+                  />
+                </label>
+              </>
+            ) : null}
           </div>
         </div>
         {loadingSides ? (

@@ -432,12 +432,16 @@ function buildInsights(
   return insights;
 }
 
-function buildWhereClause(filters) {
+function buildWhereClause(filters, { excludeKeys = [] } = {}) {
   const dateWindow = resolveDateRange(filters);
   const values = [dateWindow.startDate, dateWindow.endDate];
   const conditions = ["record_date BETWEEN $1 AND $2"];
+  const exclude = new Set(excludeKeys);
 
   Object.entries(FILTER_COLUMN_MAP).forEach(([filterKey, columnName]) => {
+    if (exclude.has(filterKey)) {
+      return;
+    }
     const value = filters[filterKey];
     if (value && value !== "All") {
       values.push(value);
@@ -452,8 +456,8 @@ function buildWhereClause(filters) {
   };
 }
 
-async function getDistinctValues(columnName, filters) {
-  const { text, values } = buildWhereClause(filters);
+async function getDistinctValues(columnName, filters, { excludeKeys = [] } = {}) {
+  const { text, values } = buildWhereClause(filters, { excludeKeys });
   const { rows } = await pool.query(
     `SELECT DISTINCT ${columnName} AS value
     FROM performance_records
@@ -465,9 +469,14 @@ async function getDistinctValues(columnName, filters) {
   return rows.map((row) => row.value);
 }
 
-async function getHierarchyOptions() {
+async function getHierarchyOptions(filters, { excludeKeys = [] } = {}) {
+  const { text, values } = buildWhereClause(filters, { excludeKeys });
   const { rows } = await pool.query(
-    `SELECT DISTINCT asi, csm, asm FROM performance_records ORDER BY asi, csm, asm`
+    `SELECT DISTINCT asi, csm, asm
+     FROM performance_records
+     ${text}
+     ORDER BY asi, csm, asm`,
+    values
   );
 
   const options = [];
@@ -511,14 +520,15 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
   const dateWindow = resolveDateRange(filters);
   const [circles, cities, clusters, societies, managers, roles, kpis, managerHierarchy] =
     await Promise.all([
-      getDistinctValues("circle", filters),
-      getDistinctValues("city", filters),
-      getDistinctValues("cluster", filters),
-      getDistinctValues("society", filters),
-      getDistinctValues("manager_name", filters),
-      getDistinctValues("role", filters),
-      getDistinctValues("kpi_name", filters),
-      getHierarchyOptions()
+      getDistinctValues("circle", filters, { excludeKeys: ["circle"] }),
+      getDistinctValues("city", filters, { excludeKeys: ["city"] }),
+      getDistinctValues("cluster", filters, { excludeKeys: ["cluster"] }),
+      getDistinctValues("society", filters, { excludeKeys: ["society"] }),
+      getDistinctValues("manager_name", filters, { excludeKeys: ["manager"] }),
+      getDistinctValues("role", filters, { excludeKeys: ["role"] }),
+      getDistinctValues("kpi_name", filters, { excludeKeys: ["kpi"] }),
+      // keep hierarchy menu stable even when a hierarchy value is selected
+      getHierarchyOptions(filters, { excludeKeys: ["asi", "csm", "asm"] })
     ]);
 
   return {
