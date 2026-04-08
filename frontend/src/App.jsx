@@ -328,12 +328,22 @@ export default function App() {
             }}
           >
             <div />
-            <h2
-              className="hero-title"
-              style={{ margin: 0, textAlign: "center", fontSize: "2.5rem" }}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
+              }}
             >
-              {activeMeta?.title || "Fiber Dashboard"}
-            </h2>
+              <h2
+                className="hero-title"
+                style={{ margin: 0, fontSize: "2.5rem" }}
+              >
+                {activeMeta?.title || "Fiber Dashboard"}
+              </h2>
+              {loadingData && <span className="refresh-pill">Refreshing</span>}
+            </div>
             <button
               type="button"
               className="button button--secondary"

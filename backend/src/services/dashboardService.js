@@ -518,9 +518,11 @@ export async function getFilterOptions(dashboardIdOrFilters = {}, maybeFilters =
   }
 
   const dateWindow = resolveDateRange(filters);
+  const allFilterKeys = Object.keys(FILTER_COLUMN_MAP);
   const [circles, cities, clusters, societies, managers, roles, kpis, managerHierarchy] =
     await Promise.all([
-      getDistinctValues("circle", filters, { excludeKeys: ["circle"] }),
+      // Circle list should stay broad and not be over-filtered
+      getDistinctValues("circle", filters, { excludeKeys: allFilterKeys }),
       getDistinctValues("city", filters, { excludeKeys: ["city"] }),
       getDistinctValues("cluster", filters, { excludeKeys: ["cluster"] }),
       getDistinctValues("society", filters, { excludeKeys: ["society"] }),

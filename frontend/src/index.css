@@ -184,6 +184,29 @@ button {
   line-height: 1.1;
 }
 
+.refresh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin-left: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(118, 146, 174, 0.6);
+  background: rgba(246, 250, 255, 0.96);
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.refresh-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
 .chip-row {
   margin-top: 12px;
   display: flex;
